@@ -9,6 +9,7 @@ class SceneManager
 public:
 	static void LoadGameObject(const std::string& filePath);
 	static void spawnBakerHouse();
+	static void spawnStreet();
 	static GameObject* getGameObject(int index);
     //File drop handler
 
