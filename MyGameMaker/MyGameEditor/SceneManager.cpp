@@ -25,7 +25,7 @@ void SceneManager::spawnStreet()
 {
     GameObject go;
     auto mesh = std::make_shared<Mesh>();
-    mesh->LoadFile("Assets/Street/street2.fbx");
+    mesh->LoadFile("Assets/Street/Street environment_V01.fbx");
     go.setMesh(mesh);
     auto imageTexture = std::make_shared<Image>();
     imageTexture->loadTexture("Assets/Street/Building_V01_C.png");
