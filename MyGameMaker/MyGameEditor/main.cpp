@@ -357,12 +357,12 @@ static void idle_func() {
             camera.transform().translate(glm::vec3(-move_speed, 0, 0));
             Console::Instance().Log("Moving camera right.");
         }
-        if (state[SDL_SCANCODE_Q]) {
+        if (state[SDL_SCANCODE_E]) {
             std::cout << "Moving camera up." << std::endl;
             camera.transform().translate(glm::vec3(0, move_speed, 0));
             Console::Instance().Log("Moving camera up.");
         }
-        if (state[SDL_SCANCODE_E]) {
+        if (state[SDL_SCANCODE_Q]) {
             std::cout << "Moving camera down." << std::endl;
             camera.transform().translate(glm::vec3(0, -move_speed, 0));
             Console::Instance().Log("Moving camera down.");
