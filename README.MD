@@ -1,21 +1,26 @@
 
-Freaky Engine (The freakiest engine for the freakiest people 😉)
+Motor8 fork from FreakyEngine
 
 https://github.com/CITM-UPC/FreakyEngine_Group5
 
 
 List of team members
 
-Alex Becerra https://github.com/Bonnie041008
-Samuel Martinez https://github.com/Samu163
-Oliver Santos https://github.com/Esnaiper
+ Daniel Berrio:
+  - Github Account: [Onnda](https://github.com/Onnda)
+
+- Salvador Bernades:
+  - Github Account: [SalvaBernades](https://github.com/SalvaBernades)
+
+- Justo Tiscornia:
+  - Github Account: [Jusstox](https://github.com/Jusstox)
 
 How to use the engine
 
 Right click - Rotate the camera 
 Right click + AWSD - Fps camera movement
-Right click + Q - Up the camera
-Right click + E - Down the camera
+Right click + E - Up the camera
+Right click + Q - Down the camera
 Right click + Shift + AWSD - fast fps camera movement
 Right click + Alt - Orbit selected object
 F - Focus on the selected object
