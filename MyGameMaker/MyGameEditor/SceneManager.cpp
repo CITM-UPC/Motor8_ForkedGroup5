@@ -27,11 +27,15 @@ void SceneManager::spawnStreet()
     auto mesh = std::make_shared<Mesh>();
     mesh->LoadFile("Assets/Street/Street environment_V01.fbx");
     go.setMesh(mesh);
+
     auto imageTexture = std::make_shared<Image>();
     imageTexture->loadTexture("Assets/Street/Building_V01_C.png");
     go.setTextureImage(imageTexture);
+
+    // Ajustes de transformación
     go.transform().pos() = vec3(4, 0, 0);
-    go.transform().rotate(-1.5708, vec3(4, 0, 0));
+    go.transform().rotate(-1.5708, vec3(1, 0, 0));
+
     go.setName("GameObject (" + std::to_string(gameObjectsOnScene.size()) + ")");
     SceneManager::gameObjectsOnScene.push_back(go);
 }
