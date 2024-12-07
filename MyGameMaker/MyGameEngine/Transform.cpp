@@ -18,6 +18,14 @@ void Transform::rotatePitch(double radians) {
     updateRotationMatrix(); 
 }
 
+void Transform::setScale(const vec3& scale) {
+    m_scale = scale;
+}
+
+vec3& Transform::scale() {
+    return m_scale;
+}
+
 void Transform::rotateRoll(double radians) {
     roll += radians;
     updateRotationMatrix(); 

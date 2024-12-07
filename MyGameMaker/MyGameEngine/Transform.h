@@ -14,6 +14,8 @@ private:
         };
     };
 
+    vec3 m_scale;
+
     // Variables para los ángulos de rotación
     double yaw = 0.0;
     double pitch = 0.0;
@@ -33,6 +35,9 @@ public:
     Transform() = default;
     Transform(const mat4& mat) : _mat(mat) {}
 
+
+    void setScale(const vec3& scale);
+    vec3& scale();
     
    
 
