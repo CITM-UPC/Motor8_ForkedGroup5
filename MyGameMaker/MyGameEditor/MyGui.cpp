@@ -288,6 +288,16 @@ void MyGUI::renderInspector() {
                 showCheckerTexture = !showCheckerTexture;
                 persistentSelectedObject->hasCheckerTexture = showCheckerTexture;
             }
+
+            // Drag and Drop para añadir una textura
+            if (ImGui::BeginDragDropTarget()) {
+                if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("TEXTURE_PATH")) {
+                    IM_ASSERT(payload->DataSize == sizeof(const char*));
+                    const char* path = *(const char**)payload->Data;
+                    persistentSelectedObject->setTexture(path);
+                }
+                ImGui::EndDragDropTarget();
+            }
         }
     }
     else {
@@ -296,6 +306,7 @@ void MyGUI::renderInspector() {
 
     ImGui::End();
 }
+
 
 void MyGUI::render() {
     ImGui_ImplOpenGL3_NewFrame();
@@ -313,7 +324,14 @@ void MyGUI::render() {
 
 void MyGUI::handleEvent(const SDL_Event& event) {
     ImGui_ImplSDL2_ProcessEvent(&event);
+
+    if (event.type == SDL_DROPFILE) {
+        const char* droppedFilePath = event.drop.file;
+        ImGui::SetDragDropPayload("TEXTURE_PATH", &droppedFilePath, sizeof(droppedFilePath));
+        SDL_free((void*)droppedFilePath);
+    }
 }
+
 
 void MyGUI::processEvent(const SDL_Event& event) {
     ImGui_ImplSDL2_ProcessEvent(&event);
