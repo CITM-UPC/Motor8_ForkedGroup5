@@ -1,8 +1,10 @@
 #include "Transform.h"
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <glm/glm.hpp>
 #include <glm/gtx/euler_angles.hpp>
+#include <glm/gtx/compatibility.hpp>
 
 
 void Transform::translate(const vec3& v) {
@@ -151,8 +153,6 @@ void Transform::setRotation(const vec3& eulerAngles) {
     updateRotationMatrix();
 }
 
-
-Transform::Transform(const mat4& mat) : _localMat(mat), _globalMat(mat) {}
 
 // --- Métodos de parenting ---
 void Transform::setParent(Transform* parent) {

@@ -71,9 +71,7 @@ private:
 
     void updateGlobalMatrix();                        // Calcula la matriz global
     void propagateGlobalChanges();                    // Propaga cambios a los hijos
-public:
-    Transform() = default;
-    Transform(const mat4& mat);
+public:    
 
     // Parenting
     void setParent(Transform* parent);                // Asigna un padre
