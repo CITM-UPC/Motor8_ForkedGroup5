@@ -1,4 +1,5 @@
 #include "GameObject.h"
+#include "Texture.h"
 #include <GL/glew.h>
 #include <glm/gtc/epsilon.hpp>
 
@@ -40,7 +41,9 @@ void CheckerTexture(bool hasCreatedCheckerImage) {
 }
 
 
-
+void GameObject::setTexture(const std::string& path) {
+    textura.loadFromFile(path);
+}
 
 
 void GameObject::draw() const {

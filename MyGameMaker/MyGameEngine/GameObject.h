@@ -22,6 +22,7 @@ private:
     std::string name;
 	mutable bool hasCreatedCheckerTexture = false;		// Indica si la textura de cuadros ha sido creada
     // Restaura la textura original del objeto
+    Texture textura;
 	
 public:
     bool hasCheckerTexture = false;
@@ -61,6 +62,7 @@ public:
     // Métodos para manejar textura y malla
     void setTextureImage(const std::shared_ptr<Image>& img_ptr) { _texture.setImage(img_ptr); }
     void setMesh(const std::shared_ptr<Mesh>& mesh_ptr) { _mesh_ptr = mesh_ptr; }
+    void setTexture(const std::string& path);
 
     // Comprobaciones de existencia de textura y malla
     bool hasTexture() const { return _texture.id(); }
