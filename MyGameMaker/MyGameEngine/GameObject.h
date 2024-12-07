@@ -52,7 +52,7 @@ public:
     //std::vector<std::shared_ptr<Component>> getComponents() const;
 
     // Transformación global del objeto
-    Transform worldTransform() const { return isRoot() ? _transform : parent().worldTransform() * _transform; }
+    Transform worldTransform() const { return isRoot() ? _transform : parent->worldTransform() * _transform; }
 
     // Cálculo de las cajas de colisión
     BoundingBox localBoundingBox() const; // Definir en el .cpp
@@ -83,7 +83,22 @@ public:
 
     void initializeCheckerTexture();
 
-   
+    // Métodos de jerarquía
+    void setParent(GameObject* newParent);                  // Establece el padre de este objeto
+    void addChild(GameObject* child);                      // Añade un hijo a este objeto
+    void removeChild(GameObject* child);                   // Elimina un hijo de este objeto
+    bool hasChildren() const;                              // Devuelve true si tiene hijos
+    const std::vector<GameObject*>& getChildren() const;   // Devuelve los hijos de este objeto
+
+    // Métodos para obtener información del objeto
+    GameObject* getParent() const;  // Devuelve el padre del objeto
+    const std::string& getName() const;  // Devuelve el nombre del objeto
+    void setName(const std::string& name); // Establece el nombre del objeto
+
+private:
+    std::string name;                     // Nombre del objeto
+    GameObject* parent = nullptr;         // Padre del objeto
+    std::vector<GameObject*> children;    // Hijos del objeto
 };
 
 

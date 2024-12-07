@@ -204,32 +204,45 @@ void MyGUI::ShowHierarchy() {
         for (auto& go : SceneManager::gameObjectsOnScene) {
             if (SceneManager::gameObjectsOnScene.empty()) continue;
 
-            static char newName[128] = "";
-            static bool renaming = false;
-            static GameObject* renamingObject = nullptr;
-
+            // Identificar si este objeto es seleccionado
             bool isSelected = (SceneManager::selectedObject == &go);
-            if (ImGui::Selectable(go.getName().c_str(), isSelected)) {
-                SceneManager::selectedObject = &go;
+
+            // Crear la entrada en la jerarquía
+            ImGui::Selectable(go.getName().c_str(), isSelected);
+
+            // Comenzar el "drag" si se selecciona este objeto
+            if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
+                // El payload será un puntero al GameObject
+                ImGui::SetDragDropPayload("GAMEOBJECT", &go, sizeof(GameObject*));
+                ImGui::Text("Dragging %s", go.getName().c_str());
+                ImGui::EndDragDropSource();
             }
 
-            if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0)) {
-                renaming = true;
-                renamingObject = &go;
-                strcpy_s(newName, go.getName().c_str());
+            // Hacer que este objeto sea un "drop target"
+            if (ImGui::BeginDragDropTarget()) {
+                if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("GAMEOBJECT")) {
+                    // Recuperar el objeto arrastrado
+                    IM_ASSERT(payload->DataSize == sizeof(GameObject*));
+                    GameObject* draggedObject = *(GameObject**)payload->Data;
+
+                    // Establecer la relación de jerarquía
+                    if (draggedObject != &go) { // Prevenir el auto-emparentamiento
+                        draggedObject->setParent(&go); // Método que deberías implementar en GameObject
+                    }
+                }
+                ImGui::EndDragDropTarget();
             }
 
-            if (renaming && renamingObject == &go) {
-                ImGui::SetKeyboardFocusHere();
-                if (ImGui::InputText("##rename", newName, IM_ARRAYSIZE(newName), ImGuiInputTextFlags_EnterReturnsTrue)) {
-                    go.setName(newName);
-                    renaming = false;
+            // Añadir un desplazamiento visual para mostrar jerarquías
+            if (go.hasChildren()) {
+                ImGui::Indent();
+                for (auto& child : go.getChildren()) {
+                    ImGui::Text("  %s", child->getName().c_str());
                 }
-                if (ImGui::IsItemDeactivated() || ImGui::IsKeyPressed(ImGuiKey_Escape)) {
-                    renaming = false;
-                }
+                ImGui::Unindent();
             }
         }
+
         ImGui::End();
     }
 }
