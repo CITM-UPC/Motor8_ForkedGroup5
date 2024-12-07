@@ -2,6 +2,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/glm.hpp>
+#include <glm/gtx/euler_angles.hpp>
 
 
 void Transform::translate(const vec3& v) {
@@ -23,6 +24,7 @@ void Transform::setScale(const vec3& scale) {
     m_scale = scale;
     updateScaleMatrix();
 }
+
 void Transform::updateScaleMatrix() {
     _mat = glm::scale(_mat, m_scale);
 }
@@ -35,10 +37,12 @@ void Transform::rotateRoll(double radians) {
     roll += radians;
     updateRotationMatrix(); 
 }
+
 void Transform::rotate(double rads, const vec3& v) {
     _dirty = true;
     _mat = glm::rotate(_mat, rads, v);
 }
+
 void Transform::updateRotationMatrix() {
     float cosYaw = cos(yaw);
     float sinYaw = sin(yaw);
@@ -77,6 +81,7 @@ void Transform::updateRotationMatrix() {
     // Aplicar la escala
     updateScaleMatrix();
 }
+
 void Transform::alignCamera(const vec3& worldUp) {
 
     vec3 fwd = glm::normalize(_fwd);
@@ -101,6 +106,7 @@ void Transform::lookAt(const vec3& target) {
     _mat[2] = vec4(-_fwd, 0.0);
     _mat[3] = vec4(_pos, 1.0);
 }
+
 glm::vec3 Transform::extractEulerAngles(const glm::mat4& mat) {
     glm::vec3 forward(mat[2][0], mat[2][1], mat[2][2]);
     glm::vec3 up(mat[1][0], mat[1][1], mat[1][2]);
@@ -114,6 +120,7 @@ glm::vec3 Transform::extractEulerAngles(const glm::mat4& mat) {
 
     return glm::vec3(glm::degrees(pitch), glm::degrees(yaw), glm::degrees(roll));
 }
+
 glm::vec3 Transform::extractScale(const glm::mat4& mat) {
     glm::vec3 left(mat[0][0], mat[0][1], mat[0][2]);
     glm::vec3 up(mat[1][0], mat[1][1], mat[1][2]);
@@ -143,3 +150,105 @@ void Transform::setRotation(const vec3& eulerAngles) {
     }
     updateRotationMatrix();
 }
+
+
+Transform::Transform(const mat4& mat) : _localMat(mat), _globalMat(mat) {}
+
+// --- Métodos de parenting ---
+void Transform::setParent(Transform* parent) {
+    if (_parent) {
+        _parent->removeChild(this);
+    }
+
+    _parent = parent;
+
+    if (_parent) {
+        _parent->addChild(this);
+    }
+
+    update(); // Recalcular transformaciones globales
+}
+
+Transform* Transform::getParent() const {
+    return _parent;
+}
+
+void Transform::addChild(Transform* child) {
+    if (child && std::find(_children.begin(), _children.end(), child) == _children.end()) {
+        _children.push_back(child);
+        child->setParent(this);
+    }
+}
+
+void Transform::removeChild(Transform* child) {
+    _children.erase(std::remove(_children.begin(), _children.end(), child), _children.end());
+    if (child) {
+        child->setParent(nullptr);
+    }
+}
+
+const std::vector<Transform*>& Transform::getChildren() const {
+    return _children;
+}
+
+// --- Transformaciones locales ---
+void Transform::setLocalPos(const vec3& pos) {
+    _localPos = pos;
+    update();
+}
+
+void Transform::setLocalRotation(const vec3& eulerAngles) {
+    _localYaw = glm::radians(eulerAngles.y);
+    _localPitch = glm::radians(eulerAngles.x);
+    _localRoll = glm::radians(eulerAngles.z);
+    update();
+}
+
+void Transform::setLocalScale(const vec3& scale) {
+    _localScale = scale;
+    update();
+}
+
+const mat4& Transform::getLocalMatrix() const {
+    return _localMat;
+}
+
+// --- Transformaciones globales ---
+vec3 Transform::getGlobalPos() const {
+    return vec3(_globalMat[3]);
+}
+
+mat4 Transform::getGlobalMatrix() const {
+    return _globalMat;
+}
+
+void Transform::updateGlobalMatrix() {
+    if (_parent) {
+        _globalMat = _parent->getGlobalMatrix() * _localMat;
+    }
+    else {
+        _globalMat = _localMat;
+    }
+}
+
+void Transform::propagateGlobalChanges() {
+    for (Transform* child : _children) {
+        if (child) {
+            child->updateGlobalMatrix();
+            child->propagateGlobalChanges();
+        }
+    }
+}
+// --- Actualización general ---
+void Transform::update() {
+    // Actualiza la matriz local combinando posición, rotación y escala
+    mat4 rotationMatrix = glm::yawPitchRoll(static_cast<float>(_localYaw), static_cast<float>(_localPitch), static_cast<float>(_localRoll));
+    _localMat = glm::translate(mat4(1.0f), _localPos) * rotationMatrix * glm::scale(mat4(1.0f), _localScale);
+
+    // Calcula la matriz global
+    updateGlobalMatrix();
+
+    // Propaga los cambios a los hijos
+    propagateGlobalChanges();
+}
+
