@@ -1,4 +1,3 @@
-
 #include "MyWindow.h"
 
 class MyGUI : public IEventProcessor
@@ -12,11 +11,10 @@ public:
 	void render();
 	void renderInspector();
 	void processEvent(const SDL_Event& event) override;
-	void handleEvent(const SDL_Event& event); 
+	void handleEvent(const SDL_Event& event);
 
 	void ShowMainMenuBar();
 	void ShowConsole();
-
 
 	void ShowSpawnFigures(bool* p_open);
 	void ShowMetricsWindow(bool* p_open);
@@ -24,6 +22,5 @@ public:
 	void ShowLibraryVerions(bool* p_open);
 
 	void ShowHierarchy();
-
+	void ShowInspector(bool* p_open); // Declaración de la nueva función
 };
-

@@ -20,6 +20,10 @@ void Transform::rotatePitch(double radians) {
 
 void Transform::setScale(const vec3& scale) {
     m_scale = scale;
+    updateScaleMatrix();
+}
+void Transform::updateScaleMatrix() {
+    _mat = glm::scale(_mat, m_scale);
 }
 
 vec3& Transform::scale() {
@@ -38,6 +42,8 @@ void Transform::updateRotationMatrix() {
     float sinYaw = sin(yaw);
     float cosPitch = cos(pitch);
     float sinPitch = sin(pitch);
+    float cosRoll = cos(roll);
+    float sinRoll = sin(roll);
 
     mat4 yawMatrix = {
         cosYaw, 0, sinYaw, 0,
@@ -53,7 +59,21 @@ void Transform::updateRotationMatrix() {
         0, 0, 0, 1
     };
 
-    _mat = pitchMatrix * yawMatrix * _mat; 
+    mat4 rollMatrix = {
+        cosRoll, -sinRoll, 0, 0,
+        sinRoll, cosRoll, 0, 0,
+        0, 0, 1, 0,
+        0, 0, 0, 1
+    };
+
+    // Reiniciar la matriz de transformación antes de aplicar las rotaciones
+    _mat = mat4(1.0f);
+
+    // Aplicar las rotaciones en el orden correcto
+    _mat = rollMatrix * pitchMatrix * yawMatrix * _mat;
+
+    // Aplicar la escala
+    updateScaleMatrix();
 }
 void Transform::alignCamera(const vec3& worldUp) {
 
@@ -102,4 +122,22 @@ glm::vec3 Transform::extractScale(const glm::mat4& mat) {
     float scaleZ = glm::length(forward);
 
     return glm::vec3(scaleX, scaleY, scaleZ);
+}
+
+void Transform::setPos(const vec3& pos) {
+    _pos = pos;
+    _mat[3] = vec4(_pos, 1.0f);
+}
+
+void Transform::setRotation(const vec3& eulerAngles) {
+    if (eulerAngles.x != std::numeric_limits<float>::quiet_NaN()) {
+        pitch = eulerAngles.x;
+    }
+    if (eulerAngles.y != std::numeric_limits<float>::quiet_NaN()) {
+        yaw = eulerAngles.y;
+    }
+    if (eulerAngles.z != std::numeric_limits<float>::quiet_NaN()) {
+        roll = eulerAngles.z;
+    }
+    updateRotationMatrix();
 }

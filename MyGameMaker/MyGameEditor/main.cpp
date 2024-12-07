@@ -415,8 +415,8 @@ int main(int argc, char* argv[]) {
     // Posición inicial de la cámara
     camera.transform().pos() = vec3(0, 1, 4);
     camera.transform().rotate(glm::radians(180.0), vec3(0, 1, 0));
-    //SceneManager::spawnBakerHouse();
-    SceneManager::spawnStreet();
+    SceneManager::spawnBakerHouse();
+    //SceneManager::spawnStreet();
 
     while (window.isOpen()) {
         const auto t0 = hrclock::now();
