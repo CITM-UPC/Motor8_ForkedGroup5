@@ -102,7 +102,7 @@ void MyGUI::ShowMainMenuBar() {
         {
             if (ImGui::MenuItem("About"))
             {
-                const char* url = "https://github.com/CITM-UPC/FreakyEngine_Group5";
+                const char* url = "https://github.com/CITM-UPC/Motor8_ForkedGroup5";
                 SDL_OpenURL(url);
             }
             ImGui::Checkbox("Metrics", &show_metrics_window);
