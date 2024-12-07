@@ -5,6 +5,7 @@
 
 
 void Transform::translate(const vec3& v) {
+    _dirty = true;
     _mat = glm::translate(_mat, v);
 }
 
@@ -35,6 +36,7 @@ void Transform::rotateRoll(double radians) {
     updateRotationMatrix(); 
 }
 void Transform::rotate(double rads, const vec3& v) {
+    _dirty = true;
     _mat = glm::rotate(_mat, rads, v);
 }
 void Transform::updateRotationMatrix() {

@@ -3,6 +3,8 @@
 #include "types.h"
 
 class Transform {
+public:
+    mutable bool _dirty{ false };
 private:
     union {
         mat4 _mat = mat4(1.0);
