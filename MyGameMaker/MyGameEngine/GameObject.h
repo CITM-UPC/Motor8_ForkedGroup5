@@ -92,11 +92,9 @@ public:
 
     // Métodos para obtener información del objeto
     GameObject* getParent() const;  // Devuelve el padre del objeto
-    const std::string& getName() const;  // Devuelve el nombre del objeto
-    void setName(const std::string& name); // Establece el nombre del objeto
+    
 
-private:
-    std::string name;                     // Nombre del objeto
+private:    
     GameObject* parent = nullptr;         // Padre del objeto
     std::vector<GameObject*> children;    // Hijos del objeto
 };
