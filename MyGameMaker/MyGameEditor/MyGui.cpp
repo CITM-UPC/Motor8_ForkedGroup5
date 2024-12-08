@@ -139,7 +139,7 @@ void MyGUI::ShowSpawnFigures(bool* p_open) {
     ImGui::End();
 }
 
-float GetMemoryUsage() {
+static float GetMemoryUsage() {
     PROCESS_MEMORY_COUNTERS memCounter;
     if (GetProcessMemoryInfo(GetCurrentProcess(), &memCounter, sizeof(memCounter))) {
         return static_cast<float>(memCounter.WorkingSetSize) / (1024.0f * 1024.0f); // Convert bytes to MB
@@ -199,6 +199,7 @@ void MyGUI::ShowLibraryVerions(bool* p_open) {
 void MyGUI::ShowHierarchy() {
     ImGui::SetNextWindowSize(ImVec2(300, 700), ImGuiCond_Always);
     ImGui::SetNextWindowPos(ImVec2(0, 20), ImGuiCond_Always);
+
     if (ImGui::Begin("Hierarchy", NULL, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove)) {
         // Iterar sobre todos los objetos en la escena
         for (auto& go : SceneManager::gameObjectsOnScene) {
@@ -226,8 +227,8 @@ void MyGUI::ShowHierarchy() {
                     GameObject* draggedObject = *(GameObject**)payload->Data;
 
                     // Establecer la relación de jerarquía
-                    if (draggedObject != &go) { // Prevenir el auto-emparentamiento
-                        draggedObject->setParent(&go); // Método que deberías implementar en GameObject
+                    if (draggedObject != nullptr && draggedObject != &go) { // Prevenir el auto-emparentamiento y null check
+                        draggedObject->setParent(&go);
                     }
                 }
                 ImGui::EndDragDropTarget();
