@@ -30,4 +30,3 @@ struct BoundingBox {
 
 
 BoundingBox operator*(const mat4& mat, const BoundingBox& bbox);
-
