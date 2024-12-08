@@ -204,6 +204,53 @@ static void drawFloorGrid(int size, double step) {
     glEnd();
 }
 
+std::array<glm::vec3, 8> calculateFrustumCorners(const Camera& camera) {
+    glm::mat4 viewProj = camera.projection() * camera.view();
+    glm::mat4 invViewProj = glm::inverse(viewProj);
+
+    // Clip space corners
+    std::array<glm::vec4, 8> clipSpaceCorners = {
+        glm::vec4(-1, -1, -1, 1), glm::vec4(1, -1, -1, 1),
+        glm::vec4(1, 1, -1, 1),   glm::vec4(-1, 1, -1, 1),
+        glm::vec4(-1, -1, 1, 1),  glm::vec4(1, -1, 1, 1),
+        glm::vec4(1, 1, 1, 1),    glm::vec4(-1, 1, 1, 1),
+    };
+
+    // Transform to world space
+    std::array<glm::vec3, 8> worldSpaceCorners;
+    for (size_t i = 0; i < 8; ++i) {
+        glm::vec4 corner = invViewProj * clipSpaceCorners[i];
+        corner /= corner.w;  // Perspective divide
+        worldSpaceCorners[i] = glm::vec3(corner);
+    }
+    return worldSpaceCorners;
+}
+
+void drawFrustum(const std::array<glm::vec3, 8>& corners) {
+    glLineWidth(2.0);
+    glColor3f(1.0f, 0.0f, 0.0f); // Red frustum
+    glBegin(GL_LINES);
+
+    // Connect near plane corners
+    glVertex3fv(glm::value_ptr(corners[0])); glVertex3fv(glm::value_ptr(corners[1]));
+    glVertex3fv(glm::value_ptr(corners[1])); glVertex3fv(glm::value_ptr(corners[2]));
+    glVertex3fv(glm::value_ptr(corners[2])); glVertex3fv(glm::value_ptr(corners[3]));
+    glVertex3fv(glm::value_ptr(corners[3])); glVertex3fv(glm::value_ptr(corners[0]));
+
+    // Connect far plane corners
+    glVertex3fv(glm::value_ptr(corners[4])); glVertex3fv(glm::value_ptr(corners[5]));
+    glVertex3fv(glm::value_ptr(corners[5])); glVertex3fv(glm::value_ptr(corners[6]));
+    glVertex3fv(glm::value_ptr(corners[6])); glVertex3fv(glm::value_ptr(corners[7]));
+    glVertex3fv(glm::value_ptr(corners[7])); glVertex3fv(glm::value_ptr(corners[4]));
+
+    // Connect near and far planes
+    glVertex3fv(glm::value_ptr(corners[0])); glVertex3fv(glm::value_ptr(corners[4]));
+    glVertex3fv(glm::value_ptr(corners[1])); glVertex3fv(glm::value_ptr(corners[5]));
+    glVertex3fv(glm::value_ptr(corners[2])); glVertex3fv(glm::value_ptr(corners[6]));
+    glVertex3fv(glm::value_ptr(corners[3])); glVertex3fv(glm::value_ptr(corners[7]));
+
+    glEnd();
+}
 
 void configureCamera() {
     glm::dmat4 projectionMatrix = glm::perspective(glm::radians(45.0), static_cast<double>(WINDOW_SIZE.x) / WINDOW_SIZE.y, 0.1, 100.0);
@@ -219,14 +266,17 @@ void configureCamera() {
 
 // Función de renderizado
 void display_func() {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     configureCamera();
 
     for (auto& go : SceneManager::gameObjectsOnScene) {
         go.draw();
     }
 
-    // Otros elementos de la escena, como la cuadrícula, etc.
+    // Visualize frustum for the secondary camera
+    auto frustumCorners = calculateFrustumCorners(secondaryCamera.GetComponent<CameraComponent>()->camera());
+    drawFrustum(frustumCorners);
+
     drawFloorGrid(16, 0.25);
 }
 
