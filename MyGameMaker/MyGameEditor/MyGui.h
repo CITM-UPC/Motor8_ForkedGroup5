@@ -23,5 +23,4 @@ public:
 
 	void ShowHierarchy();
 	void ShowInspector(bool* p_open); // Declaración de la nueva función
-	void ShowHierarchyRecursive(GameObject* go);
 };
