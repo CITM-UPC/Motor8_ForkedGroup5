@@ -22,7 +22,6 @@ public:
 	mat4 projection() const;
 	mat4 view() const;
 	std::list<Plane> frustumPlanes() const;
-	
 };
 
 

@@ -30,8 +30,8 @@ static const glm::ivec2 WINDOW_SIZE(1280, 720);
 static const unsigned int FPS = 60;
 static const auto FRAME_DT = 1.0s / FPS;
 
-static Camera camera;
-
+//static Camera camera;
+GameObject mainCamera("Main Camera");
 
 SDL_Event event;
 bool rightMouseButtonDown = false;
@@ -203,7 +203,8 @@ static void drawFloorGrid(int size, double step) {
 
 void configureCamera() {
     glm::dmat4 projectionMatrix = glm::perspective(glm::radians(45.0), static_cast<double>(WINDOW_SIZE.x) / WINDOW_SIZE.y, 0.1, 100.0);
-    glm::dmat4 viewMatrix = camera.view();
+    //glm::dmat4 viewMatrix = camera.view();
+    glm::dmat4 viewMatrix = mainCamera.GetComponent<CameraComponent>()->camera().view();
 
     glMatrixMode(GL_PROJECTION);
     glLoadMatrixd(glm::value_ptr(projectionMatrix));
@@ -250,7 +251,7 @@ void orbitCamera(const vec3& target, int deltaX, int deltaY) {
 
     yaw += deltaX * sensitivity;
     pitch -= deltaY * sensitivity;
-    float distance = glm::length(camera.transform().pos() - target);
+    float distance = glm::length(mainCamera.transform().pos() - target);
 
     vec3 newPosition;
     newPosition.x = target.x + distance * cos(glm::radians(yaw)) * cos(glm::radians(pitch));
@@ -258,8 +259,8 @@ void orbitCamera(const vec3& target, int deltaX, int deltaY) {
     newPosition.z = target.z + distance * sin(glm::radians(yaw)) * cos(glm::radians(pitch));
 
    
-    camera.transform().pos() = newPosition;
-    camera.transform().lookAt(target); 
+    mainCamera.GetComponent<CameraComponent>()->camera().transform().pos() = newPosition;
+    mainCamera.GetComponent<CameraComponent>()->camera().transform().lookAt(target);
 }
 void mouseMotion_func(int x, int y) {
     if (rightMouseButtonDown && altKeyDown == false) {
@@ -274,12 +275,12 @@ void mouseMotion_func(int x, int y) {
         if (pitch > MAX_PITCH) pitch = MAX_PITCH;
         if (pitch < -MAX_PITCH) pitch = -MAX_PITCH;
 
-        camera.transform().rotate(glm::radians(-deltaX * sensitivity), glm::vec3(0, 1, 0));
-        camera.transform().rotate(glm::radians(deltaY * sensitivity), glm::vec3(1, 0, 0));
+        mainCamera.GetComponent<CameraComponent>()->camera().transform().rotate(glm::radians(-deltaX * sensitivity), glm::vec3(0, 1, 0));
+        mainCamera.GetComponent<CameraComponent>()->camera().transform().rotate(glm::radians(deltaY * sensitivity), glm::vec3(1, 0, 0));
 
         lastMouseX = x;
         lastMouseY = y;
-        camera.transform().alignCamera();
+        mainCamera.GetComponent<CameraComponent>()->camera().transform().alignCamera();
     }
 
     if (rightMouseButtonDown && altKeyDown) {
@@ -293,7 +294,7 @@ void mouseMotion_func(int x, int y) {
             glm::vec2 mouseScreenPos = getMousePosition();
 
             glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)WINDOW_SIZE.x / WINDOW_SIZE.y, 0.1f, 100.0f);
-            glm::mat4 view = camera.view();
+            glm::mat4 view = mainCamera.GetComponent<CameraComponent>()->camera().view();
 			if (SceneManager::selectedObject != nullptr) {
 				target = SceneManager::selectedObject->transform().pos();
 
@@ -308,7 +309,7 @@ void mouseMotion_func(int x, int y) {
         }
         lastMouseX = x;
         lastMouseY = y;
-        camera.transform().alignCamera();
+        mainCamera.GetComponent<CameraComponent>()->camera().transform().alignCamera();
 	}
 	else {
 		altPressedOnce = false; // Reinicia la bandera si Alt no está presionado
@@ -339,49 +340,49 @@ static void idle_func() {
 
         if (state[SDL_SCANCODE_W]) {
             std::cout << "Moving camera forward." << std::endl;
-            camera.transform().translate(glm::vec3(0, 0, move_speed));
+            mainCamera.GetComponent<CameraComponent>()->camera().transform().translate(glm::vec3(0, 0, move_speed));
             Console::Instance().Log("Moving camera forward.");
         }
         if (state[SDL_SCANCODE_S]) {
             std::cout << "Moving camera backward." << std::endl;
-            camera.transform().translate(glm::vec3(0, 0, -move_speed));
+            mainCamera.GetComponent<CameraComponent>()->camera().transform().translate(glm::vec3(0, 0, -move_speed));
             Console::Instance().Log("Moving camera backward.");
         }
         if (state[SDL_SCANCODE_A]) {
             std::cout << "Moving camera left." << std::endl;
-            camera.transform().translate(glm::vec3(move_speed, 0, 0));
+            mainCamera.GetComponent<CameraComponent>()->camera().transform().translate(glm::vec3(move_speed, 0, 0));
             Console::Instance().Log("Moving camera left.");
         }
         if (state[SDL_SCANCODE_D]) {
             std::cout << "Moving camera right." << std::endl;
-            camera.transform().translate(glm::vec3(-move_speed, 0, 0));
+            mainCamera.GetComponent<CameraComponent>()->camera().transform().translate(glm::vec3(-move_speed, 0, 0));
             Console::Instance().Log("Moving camera right.");
         }
         if (state[SDL_SCANCODE_E]) {
             std::cout << "Moving camera up." << std::endl;
-            camera.transform().translate(glm::vec3(0, move_speed, 0));
+            mainCamera.GetComponent<CameraComponent>()->camera().transform().translate(glm::vec3(0, move_speed, 0));
             Console::Instance().Log("Moving camera up.");
         }
         if (state[SDL_SCANCODE_Q]) {
             std::cout << "Moving camera down." << std::endl;
-            camera.transform().translate(glm::vec3(0, -move_speed, 0));
+            mainCamera.GetComponent<CameraComponent>()->camera().transform().translate(glm::vec3(0, -move_speed, 0));
             Console::Instance().Log("Moving camera down.");
         }
     }
 
     if (state[SDL_SCANCODE_F] && !fKeyDown && SceneManager::selectedObject != NULL) {
-        camera.transform().pos() = SceneManager::selectedObject->transform().pos() + vec3(0, 1, 4);
+        mainCamera.GetComponent<CameraComponent>()->camera().transform().pos() = SceneManager::selectedObject->transform().pos() + vec3(0, 1, 4);
         fKeyDown = true;
-        camera.transform().lookAt(SceneManager::selectedObject->transform().pos());
+        mainCamera.GetComponent<CameraComponent>()->camera().transform().lookAt(SceneManager::selectedObject->transform().pos());
         std::cout << "Camera looking at target." << std::endl;
     }
     else if (!state[SDL_SCANCODE_F]) {
         fKeyDown = false;
     }
-    camera.transform().alignCamera();
+    mainCamera.GetComponent<CameraComponent>()->camera().transform().alignCamera();
 }
 void mouseWheel_func(int direction) {
-    camera.transform().translate(vec3(0, 0, direction * 0.1));
+    mainCamera.GetComponent<CameraComponent>()->camera().transform().translate(vec3(0, 0, direction * 0.1));
 }
 //debug, showing the bounding boxes, not finished
 inline static void glVertex3(const vec3& v) { glVertex3dv(&v.x); }
@@ -413,8 +414,11 @@ int main(int argc, char* argv[]) {
     initOpenGL();
 
     // Posición inicial de la cámara
-    camera.transform().pos() = vec3(0, 1, 4);
-    camera.transform().rotate(glm::radians(180.0), vec3(0, 1, 0));
+    mainCamera.name = "Main Camera";
+    mainCamera.AddComponent<CameraComponent>();
+    SceneManager::gameObjectsOnScene.push_back(mainCamera);
+    mainCamera.GetComponent<CameraComponent>()->camera().transform().pos() = vec3(0, 1, 4);
+    mainCamera.GetComponent<CameraComponent>()->camera().transform().rotate(glm::radians(180.0), vec3(0, 1, 0));
     SceneManager::spawnBakerHouse();
     //SceneManager::spawnStreet();
 
@@ -438,7 +442,8 @@ int main(int argc, char* argv[]) {
         {
             // Obtener matrices de proyección y vista de la cámara
             glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)WINDOW_SIZE.x / WINDOW_SIZE.y, 0.1f, 100.0f);
-            glm::mat4 view = camera.view();
+            glm::mat4 view = mainCamera.GetComponent<CameraComponent>()->camera().view();
+
           
             gui.processEvent(event);
             

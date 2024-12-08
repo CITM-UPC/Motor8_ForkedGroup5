@@ -16,6 +16,16 @@ void deleteCheckerTexture() {
     }
 }
 
+GameObject::GameObject(const std::string& name) : name(name), cachedComponentType(typeid(Component))
+{
+    AddComponent<TransformComponent>();
+    if (name == "Main Camera")
+    {
+        AddComponent<CameraComponent>();
+    }
+}
+
+
 // Crea la textura de tablero y devuelve el ID de la textura
 void CheckerTexture(bool hasCreatedCheckerImage) {
     
@@ -40,6 +50,10 @@ void CheckerTexture(bool hasCreatedCheckerImage) {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, CHECKERS_WIDTH, CHECKERS_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, checkerImage);
 }
 
+std::string GameObject::GetName() const
+{
+    return name;
+}
 
 void GameObject::setTexture(const std::string& path) {
     textura.loadFromFile(path);
