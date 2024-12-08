@@ -196,57 +196,57 @@ void MyGUI::ShowLibraryVerions(bool* p_open) {
     ImGui::End();
 }
 
+void MyGUI::ShowHierarchyRecursive(GameObject* go) {
+    // Mostrar el objeto actual
+    bool isSelected = (SceneManager::selectedObject == go);
+    ImGui::Selectable(go->getName().c_str(), isSelected);
+
+    // Comenzar el drag si este objeto es arrastrado
+    if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
+        ImGui::SetDragDropPayload("GAMEOBJECT", &go, sizeof(GameObject*));
+        ImGui::Text("Dragging %s", go->getName().c_str());
+        ImGui::EndDragDropSource();
+    }
+
+    // Permitir drops en este objeto
+    if (ImGui::BeginDragDropTarget()) {
+        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("GAMEOBJECT")) {
+            IM_ASSERT(payload->DataSize == sizeof(GameObject*));
+            GameObject* draggedObject = *(GameObject**)payload->Data;
+
+            /*if (draggedObject != nullptr && draggedObject != go) {
+                if (!draggedObject->hasParent(go)) {
+                    draggedObject->setParent(go);
+                }
+            }*/
+        }
+        ImGui::EndDragDropTarget();
+    }
+
+    // Mostrar los hijos recursivamente
+    if (go->hasChildren()) {
+        ImGui::Indent();
+        for (auto& child : go->getChildren()) {
+            ShowHierarchyRecursive(child);
+        }
+        ImGui::Unindent();
+    }
+}
+
 void MyGUI::ShowHierarchy() {
     ImGui::SetNextWindowSize(ImVec2(300, 700), ImGuiCond_Always);
     ImGui::SetNextWindowPos(ImVec2(0, 20), ImGuiCond_Always);
 
     if (ImGui::Begin("Hierarchy", NULL, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove)) {
-        // Iterar sobre todos los objetos en la escena
         for (auto& go : SceneManager::gameObjectsOnScene) {
-            if (SceneManager::gameObjectsOnScene.empty()) continue;
-
-            // Identificar si este objeto es seleccionado
-            bool isSelected = (SceneManager::selectedObject == &go);
-
-            // Crear la entrada en la jerarquía
-            ImGui::Selectable(go.getName().c_str(), isSelected);
-
-            // Comenzar el "drag" si se selecciona este objeto
-            if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
-                // El payload será un puntero al GameObject
-                ImGui::SetDragDropPayload("GAMEOBJECT", &go, sizeof(GameObject*));
-                ImGui::Text("Dragging %s", go.getName().c_str());
-                ImGui::EndDragDropSource();
-            }
-
-            // Hacer que este objeto sea un "drop target"
-            if (ImGui::BeginDragDropTarget()) {
-                if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("GAMEOBJECT")) {
-                    // Recuperar el objeto arrastrado
-                    IM_ASSERT(payload->DataSize == sizeof(GameObject*));
-                    GameObject* draggedObject = *(GameObject**)payload->Data;
-
-                    // Establecer la relación de jerarquía
-                    if (draggedObject != nullptr && draggedObject != &go) { // Prevenir el auto-emparentamiento y null check
-                        draggedObject->setParent(&go);
-                    }
-                }
-                ImGui::EndDragDropTarget();
-            }
-
-            // Añadir un desplazamiento visual para mostrar jerarquías
-            if (go.hasChildren()) {
-                ImGui::Indent();
-                for (auto& child : go.getChildren()) {
-                    ImGui::Text("  %s", child->getName().c_str());
-                }
-                ImGui::Unindent();
+            if (!go.getParent()) { // Solo mostrar objetos raíz
+                ShowHierarchyRecursive(&go);
             }
         }
-
         ImGui::End();
     }
 }
+
 
 void MyGUI::renderInspector() {
     ImGui::SetNextWindowSize(ImVec2(300, 700), ImGuiCond_Always);
