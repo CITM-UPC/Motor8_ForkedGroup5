@@ -213,24 +213,36 @@ void MyGUI::ShowHierarchy() {
 
             // Comenzar el "drag" si se selecciona este objeto
             if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
-                // El payload será un puntero al GameObject
+                // Cambiar para usar un puntero válido
                 ImGui::SetDragDropPayload("GAMEOBJECT", &go, sizeof(GameObject*));
-                ImGui::Text("Dragging %s", go.getName().c_str());
+                ImGui::Text("Dragging %s", go.getName().c_str()); // Ajusta si cambias a puntero
                 ImGui::EndDragDropSource();
             }
 
             // Hacer que este objeto sea un "drop target"
             if (ImGui::BeginDragDropTarget()) {
                 if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("GAMEOBJECT")) {
-                    // Recuperar el objeto arrastrado
+                    // Verificar tamaño del payload
                     IM_ASSERT(payload->DataSize == sizeof(GameObject*));
+
+                    // Recuperar el objeto arrastrado
                     GameObject* draggedObject = *(GameObject**)payload->Data;
 
-                    // Establecer la relación de jerarquía
-                    if (draggedObject != nullptr && draggedObject != &go) { // Prevenir el auto-emparentamiento y null check
-                        draggedObject->setParent(&go);
+                    // Logs para confirmar que los datos son válidos
+                    if (draggedObject != nullptr) {
+                        std::cout << "Dropped " << draggedObject->getName()
+                            << " onto " << go.getName() << std::endl;
+
+                        // Establecer relación de jerarquía
+                        if (draggedObject != &go) { // Prevenir auto-emparentamiento
+                            draggedObject->setParent(&go);
+                        }
+                    }
+                    else {
+                        std::cerr << "Error: Dragged object is null!" << std::endl;
                     }
                 }
+
                 ImGui::EndDragDropTarget();
             }
 
@@ -241,6 +253,12 @@ void MyGUI::ShowHierarchy() {
                     ImGui::Text("  %s", child->getName().c_str());
                 }
                 ImGui::Unindent();
+            }
+            if (ImGui::TreeNode(go.getName().c_str())) {
+                for (auto& child : go.getChildren()) {
+                    ImGui::BulletText("%s", child->getName().c_str());
+                }
+                ImGui::TreePop();
             }
         }
 

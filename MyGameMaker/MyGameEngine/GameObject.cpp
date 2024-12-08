@@ -2,6 +2,7 @@
 #include "Texture.h"
 #include <GL/glew.h>
 #include <glm/gtc/epsilon.hpp>
+#include <iostream>
 
 const int CHECKERS_WIDTH = 64;
 const int CHECKERS_HEIGHT = 64;
@@ -111,27 +112,33 @@ BoundingBox GameObject::worldBoundingBox() const {
 }
 
 void GameObject::setParent(GameObject* newParent) {
-    // Eliminar del padre actual si lo tiene
+    if (this == newParent) return; // Prevenir auto-emparentamiento
+
+    // Remover del padre actual (si existe)
     if (parent != nullptr) {
         parent->removeChild(this);
     }
 
-    // Establecer el nuevo padre
+    // Asignar el nuevo padre
     parent = newParent;
 
-    // Añadir este objeto como hijo del nuevo padre
+    // Agregar este objeto como hijo del nuevo padre
     if (newParent != nullptr) {
         newParent->addChild(this);
     }
 }
 
 void GameObject::addChild(GameObject* child) {
-    children.push_back(child);
+    if (std::find(children.begin(), children.end(), child) == children.end()) {
+        children.push_back(child);
+    }
 }
 
 void GameObject::removeChild(GameObject* child) {
     children.erase(std::remove(children.begin(), children.end(), child), children.end());
 }
+
+
 
 bool GameObject::hasChildren() const {
     return !children.empty();
