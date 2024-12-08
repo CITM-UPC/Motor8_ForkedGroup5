@@ -32,6 +32,10 @@ static const auto FRAME_DT = 1.0s / FPS;
 
 //static Camera camera;
 GameObject mainCamera("Main Camera");
+GameObject secondaryCamera("Secondary Camera");
+Camera* activeCamera = nullptr;  // Pointer to track the current active camera
+
+
 
 SDL_Event event;
 bool rightMouseButtonDown = false;
@@ -204,13 +208,15 @@ static void drawFloorGrid(int size, double step) {
 void configureCamera() {
     glm::dmat4 projectionMatrix = glm::perspective(glm::radians(45.0), static_cast<double>(WINDOW_SIZE.x) / WINDOW_SIZE.y, 0.1, 100.0);
     //glm::dmat4 viewMatrix = camera.view();
-    glm::dmat4 viewMatrix = mainCamera.GetComponent<CameraComponent>()->camera().view();
+   /* glm::dmat4 viewMatrix = mainCamera.GetComponent<CameraComponent>()->camera().view();*/
+    glm::dmat4 viewMatrix = activeCamera->view();
 
     glMatrixMode(GL_PROJECTION);
     glLoadMatrixd(glm::value_ptr(projectionMatrix));
     glMatrixMode(GL_MODELVIEW);
     glLoadMatrixd(glm::value_ptr(viewMatrix));
 }
+
 // Función de renderizado
 void display_func() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -340,32 +346,32 @@ static void idle_func() {
 
         if (state[SDL_SCANCODE_W]) {
             std::cout << "Moving camera forward." << std::endl;
-            mainCamera.GetComponent<CameraComponent>()->camera().transform().translate(glm::vec3(0, 0, move_speed));
+            activeCamera->transform().translate(glm::vec3(0, 0, move_speed));
             Console::Instance().Log("Moving camera forward.");
         }
         if (state[SDL_SCANCODE_S]) {
             std::cout << "Moving camera backward." << std::endl;
-            mainCamera.GetComponent<CameraComponent>()->camera().transform().translate(glm::vec3(0, 0, -move_speed));
+            activeCamera->transform().translate(glm::vec3(0, 0, -move_speed));
             Console::Instance().Log("Moving camera backward.");
         }
         if (state[SDL_SCANCODE_A]) {
             std::cout << "Moving camera left." << std::endl;
-            mainCamera.GetComponent<CameraComponent>()->camera().transform().translate(glm::vec3(move_speed, 0, 0));
+            activeCamera->transform().translate(glm::vec3(move_speed, 0, 0));
             Console::Instance().Log("Moving camera left.");
         }
         if (state[SDL_SCANCODE_D]) {
             std::cout << "Moving camera right." << std::endl;
-            mainCamera.GetComponent<CameraComponent>()->camera().transform().translate(glm::vec3(-move_speed, 0, 0));
+            activeCamera->transform().translate(glm::vec3(-move_speed, 0, 0));
             Console::Instance().Log("Moving camera right.");
         }
         if (state[SDL_SCANCODE_E]) {
             std::cout << "Moving camera up." << std::endl;
-            mainCamera.GetComponent<CameraComponent>()->camera().transform().translate(glm::vec3(0, move_speed, 0));
+            activeCamera->transform().translate(glm::vec3(0, move_speed, 0));
             Console::Instance().Log("Moving camera up.");
         }
         if (state[SDL_SCANCODE_Q]) {
             std::cout << "Moving camera down." << std::endl;
-            mainCamera.GetComponent<CameraComponent>()->camera().transform().translate(glm::vec3(0, -move_speed, 0));
+            activeCamera->transform().translate(glm::vec3(0, -move_speed, 0));
             Console::Instance().Log("Moving camera down.");
         }
     }
@@ -405,6 +411,7 @@ static void drawBoundingBox(const BoundingBox& bbox) {
 }
 
 
+
 int main(int argc, char* argv[]) {
     ilInit();
     iluInit();
@@ -422,6 +429,13 @@ int main(int argc, char* argv[]) {
     SceneManager::spawnBakerHouse();
     SceneManager::spawnBakerHouse();
     //SceneManager::spawnStreet();
+
+    secondaryCamera.AddComponent<CameraComponent>();
+    SceneManager::gameObjectsOnScene.push_back(secondaryCamera);
+    secondaryCamera.GetComponent<CameraComponent>()->camera().transform().pos() = glm::dvec3(10, 5, 10);
+    secondaryCamera.GetComponent<CameraComponent>()->camera().transform().lookAt(glm::dvec3(0, 0, 0)); // Look at the origin
+   
+    activeCamera = &mainCamera.GetComponent<CameraComponent>()->camera();
 
     while (window.isOpen()) {
         const auto t0 = hrclock::now();
@@ -474,7 +488,18 @@ int main(int argc, char* argv[]) {
                 break;
             case SDL_KEYDOWN:
                 glm::vec3 mouseWorldPos = screenToWorld(mouseScreenPos, 10.0f, projection, view);
-
+                if (event.key.keysym.sym == SDLK_c) {  // Press 'C' to toggle cameras
+                    if (activeCamera == &mainCamera.GetComponent<CameraComponent>()->camera()) {
+                        activeCamera = &secondaryCamera.GetComponent<CameraComponent>()->camera();
+                        std::cout << "Switched to Secondary Camera\n";
+                    }
+                    else {
+                        activeCamera = &mainCamera.GetComponent<CameraComponent>()->camera();
+                        std::cout << "Switched to Main Camera\n";
+                    }
+                }
+                break;
+            
                 // Crear figuras en la posición 3D calculada
                 switch (event.key.keysym.sym) {
                 case SDLK_1:  // Crear Triángulo
