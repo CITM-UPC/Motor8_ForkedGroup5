@@ -234,7 +234,10 @@ void MyGUI::ShowHierarchy() {
             bool isSelected = (SceneManager::selectedObject == &go);            
          
             // Crear la entrada en la jerarquía
-            ImGui::Selectable(go.getName().c_str(), isSelected);
+            if (ImGui::Selectable(go.getName().c_str(), isSelected)) {
+                // Actualizar el objeto seleccionado en SceneManager
+                SceneManager::selectedObject = &go;
+            }
 
             // Comenzar el "drag" si se selecciona este objeto
             if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
