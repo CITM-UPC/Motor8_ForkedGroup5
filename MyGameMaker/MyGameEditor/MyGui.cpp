@@ -9,6 +9,10 @@
 #include <imgui_impl_sdl2.h>
 #include <imgui_impl_opengl3.h>
 #include <tinyfiledialogs/tinyfiledialogs.h> 
+#define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING
+#include <experimental/filesystem>
+#include <vector>
+#include <string>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_video.h>
@@ -144,6 +148,43 @@ void MyGUI::ShowConsole() {
     }
     ImGui::End();
 }
+
+void MyGUI::ShowAssetsFolder(bool* p_open) {
+    ImGui::SetNextWindowSize(ImVec2(800, 600), ImGuiCond_FirstUseEver); // Permite redimensionar la ventana
+    ImGui::Begin("Assets Folder", p_open);
+
+    static std::vector<std::string> files;
+    static bool filesLoaded = false;
+    static int selectedFileIndex = -1;
+
+    if (!filesLoaded) {
+        std::string assetsPath = "Assets"; // Cambia esto a la ruta de tu carpeta de Assets
+        for (const auto& entry : std::experimental::filesystem::directory_iterator(assetsPath)) {
+            files.push_back(entry.path().filename().string());
+        }
+        filesLoaded = true;
+    }
+
+    for (int i = 0; i < files.size(); ++i) {
+        if (ImGui::Selectable(files[i].c_str(), selectedFileIndex == i)) {
+            selectedFileIndex = i;
+            // Aquí puedes agregar la lógica para manejar la selección del archivo
+            Console::Instance().Log("Selected file: " + files[i]);
+        }
+
+        // Comenzar el "drag" si se selecciona este archivo
+        if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
+            const char* filePath = files[i].c_str();
+            ImGui::SetDragDropPayload("ASSET_FILE", filePath, strlen(filePath) + 1); // El payload debe contener la ruta del archivo
+            ImGui::Text("Dragging %s", files[i].c_str());
+            ImGui::EndDragDropSource();
+        }
+    }
+
+    ImGui::End();
+}
+
+
 
 void MyGUI::ShowSpawnFigures(bool* p_open) {
     ImGui::Begin("Spawn Figures");
@@ -373,6 +414,23 @@ void MyGUI::render() {
     ShowHierarchy();
     renderInspector();
     ShowConsole();
+
+    static bool showAssetsFolder = true;
+    ShowAssetsFolder(&showAssetsFolder);
+
+    // Manejar el "drop" de archivos en la pantalla
+    if (ImGui::Begin("Main Viewport")) {
+        if (ImGui::BeginDragDropTarget()) {
+            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_FILE")) {
+                const char* filePath = (const char*)payload->Data;
+                Console::Instance().Log("Dropped file: " + std::string(filePath));
+                // Aquí puedes agregar la lógica para manejar el archivo arrastrado y soltado
+                SceneManager::LoadGameObject(filePath);
+            }
+            ImGui::EndDragDropTarget();
+        }
+        ImGui::End();
+    }
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
