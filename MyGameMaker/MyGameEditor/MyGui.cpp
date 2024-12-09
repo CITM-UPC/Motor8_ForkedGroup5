@@ -181,7 +181,6 @@ void MyGUI::ShowMetricsWindow(bool* p_open) {
     ImGui::End();
 }
 
-
 void MyGUI::ShowRenderSystemInfo(bool* p_open) {
     ImGui::Begin("Hardware Information");
     std::string systemInfo = SystemInfo::GetFullSystemInfo();
@@ -213,33 +212,29 @@ void MyGUI::ShowHierarchy() {
 
             // Comenzar el "drag" si se selecciona este objeto
             if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
-                // Cambiar para usar un puntero válido
-                ImGui::SetDragDropPayload("GAMEOBJECT", &go, sizeof(GameObject*));
-                ImGui::Text("Dragging %s", go.getName().c_str()); // Ajusta si cambias a puntero
+                GameObject* goPtr = &go; // Asegúrate de que estás pasando un puntero válido
+                ImGui::SetDragDropPayload("GAMEOBJECT", &goPtr, sizeof(GameObject*)); // El payload debe contener el puntero
+                ImGui::Text("Dragging %s", go.getName().c_str());
                 ImGui::EndDragDropSource();
             }
+
 
             // Hacer que este objeto sea un "drop target"
             if (ImGui::BeginDragDropTarget()) {
                 if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("GAMEOBJECT")) {
-                    // Verificar tamaño del payload
-                    IM_ASSERT(payload->DataSize == sizeof(GameObject*));
-
-                    // Recuperar el objeto arrastrado
+                    IM_ASSERT(payload->DataSize == sizeof(GameObject*)); // Verifica el tamaño del payload
                     GameObject* draggedObject = *(GameObject**)payload->Data;
 
-                    // Logs para confirmar que los datos son válidos
-                    if (draggedObject != nullptr) {
-                        std::cout << "Dropped " << draggedObject->getName()
-                            << " onto " << go.getName() << std::endl;
-
-                        // Establecer relación de jerarquía
-                        if (draggedObject != &go) { // Prevenir auto-emparentamiento
-                            draggedObject->setParent(&go);
-                        }
+                    if (draggedObject == nullptr) {
+                        std::cout << "Error: Dragged object is null!" << std::endl;
                     }
                     else {
-                        std::cerr << "Error: Dragged object is null!" << std::endl;
+                        std::cout << "Dragged object: " << draggedObject->getName() << std::endl;
+                        // Aquí se maneja el emparentamiento
+                        if (draggedObject != &go) {
+                            draggedObject->setParent(&go);
+                           /* SceneManager::gameObjectsOnScene.erase(draggedObject);*/
+                        }
                     }
                 }
 
