@@ -3,6 +3,7 @@
 #include <list>
 #include "types.h"
 #include "Transform.h"
+#include "BoundingBox.h"
 
 class Camera {
 
@@ -22,6 +23,7 @@ public:
 	mat4 projection() const;
 	mat4 view() const;
 	std::list<Plane> frustumPlanes() const;
+
 };
 
 

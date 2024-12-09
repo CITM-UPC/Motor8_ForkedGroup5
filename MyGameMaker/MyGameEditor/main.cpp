@@ -21,6 +21,8 @@
 #include "MyGui.h"
 #include "SceneManager.h"
 #include "Console.h"
+#include <MyGameEngine/GameObject.cpp>
+
 
 using namespace std;
 using hrclock = chrono::high_resolution_clock;
@@ -271,6 +273,7 @@ void display_func() {
 
     for (auto& go : SceneManager::gameObjectsOnScene) {
         go.draw();
+        drawBoundingBox(go.boundingBox());
     }
 
     // Visualize frustum for the secondary camera
@@ -440,25 +443,6 @@ void mouseWheel_func(int direction) {
     mainCamera.GetComponent<CameraComponent>()->camera().transform().translate(vec3(0, 0, direction * 0.1));
 }
 //debug, showing the bounding boxes, not finished
-inline static void glVertex3(const vec3& v) { glVertex3dv(&v.x); }
-static void drawWiredQuad(const vec3& v0, const vec3& v1, const vec3& v2, const vec3& v3) {
-    glBegin(GL_LINE_LOOP);
-    glVertex3(v0);
-    glVertex3(v1);
-    glVertex3(v2);
-    glVertex3(v3);
-    glEnd();
-}
-static void drawBoundingBox(const BoundingBox& bbox) {
-    glLineWidth(2.0);
-    drawWiredQuad(bbox.v000(), bbox.v001(), bbox.v011(), bbox.v010());
-    drawWiredQuad(bbox.v100(), bbox.v101(), bbox.v111(), bbox.v110());
-    drawWiredQuad(bbox.v000(), bbox.v001(), bbox.v101(), bbox.v100());
-    drawWiredQuad(bbox.v010(), bbox.v011(), bbox.v111(), bbox.v110());
-    drawWiredQuad(bbox.v000(), bbox.v010(), bbox.v110(), bbox.v100());
-    drawWiredQuad(bbox.v001(), bbox.v011(), bbox.v111(), bbox.v101());
-}
-
 
 
 int main(int argc, char* argv[]) {

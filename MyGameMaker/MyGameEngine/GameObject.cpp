@@ -60,6 +60,26 @@ void GameObject::setTexture(const std::string& path) {
     textura.loadFromFile(path);
 }
 
+inline static void glVertex3(const vec3& v) { glVertex3dv(&v.x); }
+static void drawWiredQuad(const vec3& v0, const vec3& v1, const vec3& v2, const vec3& v3) {
+    glBegin(GL_LINE_LOOP);
+    glVertex3(v0);
+    glVertex3(v1);
+    glVertex3(v2);
+    glVertex3(v3);
+    glEnd();
+}
+static void drawBoundingBox(const BoundingBox& bbox) {
+    glLineWidth(2.0);
+    drawWiredQuad(bbox.v000(), bbox.v001(), bbox.v011(), bbox.v010());
+    drawWiredQuad(bbox.v100(), bbox.v101(), bbox.v111(), bbox.v110());
+    drawWiredQuad(bbox.v000(), bbox.v001(), bbox.v101(), bbox.v100());
+    drawWiredQuad(bbox.v010(), bbox.v011(), bbox.v111(), bbox.v110());
+    drawWiredQuad(bbox.v000(), bbox.v010(), bbox.v110(), bbox.v100());
+    drawWiredQuad(bbox.v001(), bbox.v011(), bbox.v111(), bbox.v101());
+}
+
+
 
 void GameObject::draw() const {
     glPushMatrix();
@@ -91,7 +111,9 @@ void GameObject::draw() const {
     if (hasTexture()) glDisable(GL_TEXTURE_2D);
 
     if (parent == nullptr) {
-    for (const auto& child : children) child->draw();
+    for (const auto& child : children)
+        child->draw();
+        
     }
     
 
