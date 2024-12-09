@@ -12,7 +12,7 @@
 #include <chrono>
 #include <thread>
 #include <vector>
-
+#include <list>
 #include "MyGameEngine/Camera.h"
 #include "MyGameEngine/Mesh.h"
 #include "MyGameEngine/GameObject.h"
@@ -22,6 +22,8 @@
 #include "SceneManager.h"
 #include "Console.h"
 #include <MyGameEngine/GameObject.cpp>
+#include "MyGameEngine/BoundingBox.h"
+#include "MyGameEngine/types.h"
 
 
 using namespace std;
@@ -266,19 +268,35 @@ void configureCamera() {
     glLoadMatrixd(glm::value_ptr(viewMatrix));
 }
 
+bool isBoundingBoxInsideFrustum(const BoundingBox& bbox, const std::list<Plane>& frustumPlanes) {
+    for (const auto& plane : frustumPlanes) {
+        if (plane.distance(bbox.v000()) < 0 &&
+            plane.distance(bbox.v001()) < 0 &&
+            plane.distance(bbox.v010()) < 0 &&
+            plane.distance(bbox.v011()) < 0 &&
+            plane.distance(bbox.v100()) < 0 &&
+            plane.distance(bbox.v101()) < 0 &&
+            plane.distance(bbox.v110()) < 0 &&
+            plane.distance(bbox.v111()) < 0) {
+            return false;
+        }
+    }
+    return true;
+}
+
 // Función de renderizado
 void display_func() {
-     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     configureCamera();
 
-    for (auto& go : SceneManager::gameObjectsOnScene) {
-        go.draw();
-        drawBoundingBox(go.boundingBox());
-    }
+    auto frustumPlanes = activeCamera->frustumPlanes();
 
-    // Visualize frustum for the secondary camera
-    auto frustumCorners = calculateFrustumCorners(secondaryCamera.GetComponent<CameraComponent>()->camera());
-    drawFrustum(frustumCorners);
+    for (auto& go : SceneManager::gameObjectsOnScene) {
+        if (isBoundingBoxInsideFrustum(go.boundingBox(), frustumPlanes)) {
+            go.draw();
+            drawBoundingBox(go.boundingBox());
+        }
+    }
 
     drawFloorGrid(16, 0.25);
 }
@@ -470,15 +488,21 @@ int main(int argc, char* argv[]) {
    
     activeCamera = &mainCamera.GetComponent<CameraComponent>()->camera();
 
+    
+
     while (window.isOpen()) {
         const auto t0 = hrclock::now();
 		handleAltKey();
         // Obtener la posición actual del mouse
         glm::vec2 mouseScreenPos = getMousePosition();       
 
+        
+
         display_func(); // Renderizar la escena
         gui.render();
         window.swapBuffers();
+
+       
 
         const auto t1 = hrclock::now();
         const auto dt = t1 - t0;

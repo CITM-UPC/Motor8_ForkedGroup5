@@ -40,6 +40,10 @@ struct Plane {
 	Vector normal;
 	Point point;
 	Plane(const Vector& normal, const Point& point) : normal(normal), point(point) {}
+	// Función para calcular la distancia de un punto al plano
+	double distance(const Point& p) const {
+		return glm::dot(normal.v, p.p - point.p);
+	}
 };
 
 inline Plane operator*(const mat4& m, const Plane& plane) { return Plane(m * plane.normal, m * plane.point); }
