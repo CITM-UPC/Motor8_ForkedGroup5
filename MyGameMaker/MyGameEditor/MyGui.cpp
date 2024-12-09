@@ -22,6 +22,8 @@ bool show_metrics_window = false;
 bool show_hardware_window = false;
 bool show_software_window = false;
 bool show_spawn_figures_window = false;
+bool is_running = false;
+bool is_paused = false;
 
 MyGUI::MyGUI(SDL_Window* window, void* context) {
     IMGUI_CHECKVERSION();
@@ -91,6 +93,30 @@ void MyGUI::ShowMainMenuBar() {
             ImGui::Checkbox("Metrics", &show_metrics_window);
             ImGui::Checkbox("Hardware Info", &show_hardware_window);
             ImGui::Checkbox("Software Info", &show_software_window);
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("Control")) {
+            if (ImGui::MenuItem("Start", NULL, is_running)) {
+                is_running = true;
+                is_paused = false;
+                Console::Instance().Log("System started.");
+                // Lógica para iniciar la funcionalidad
+            }
+            if (ImGui::MenuItem("Stop", NULL, !is_running)) {
+                is_running = false;
+                Console::Instance().Log("System stopped.");
+                // Lógica para detener la funcionalidad
+            }
+            if (ImGui::MenuItem("Pause", NULL, is_paused)) {
+                is_paused = !is_paused;
+                if (is_paused) {
+                    Console::Instance().Log("System paused.");
+                }
+                else {
+                    Console::Instance().Log("System resumed.");
+                }
+                // Lógica para pausar/reanudar la funcionalidad
+            }
             ImGui::EndMenu();
         }
         ImGui::EndMainMenuBar();
