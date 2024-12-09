@@ -353,7 +353,6 @@ void mouseMotion_func(int x, int y) {
             glm::mat4 view = mainCamera.GetComponent<CameraComponent>()->camera().view();
 			if (SceneManager::selectedObject != nullptr) {
 				target = SceneManager::selectedObject->transform().pos();
-
 			}
 			else {
 				target = glm::vec3(0,0,0);
@@ -522,7 +521,7 @@ int main(int argc, char* argv[]) {
                 handleFileDrop(event.drop.file, projection, view);
                 SDL_free(event.drop.file);
                 break;
-            case SDL_MOUSEBUTTONDOWN:
+            case SDL_MOUSEBUTTONDOWN:   //MOUSEPICKING OBJETO SELECCION
                 if (event.button.button == SDL_BUTTON_LEFT) {
                     // Raycast para detectar el objeto debajo del mouse
                     SceneManager::selectedObject = raycastFromMouseToGameObject(mouseScreenPos.x, mouseScreenPos.y, projection, view, WINDOW_SIZE);

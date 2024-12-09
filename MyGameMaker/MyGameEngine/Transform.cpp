@@ -176,14 +176,17 @@ Transform* Transform::getParent() const {
 void Transform::addChild(Transform* child) {
     if (child && std::find(_children.begin(), _children.end(), child) == _children.end()) {
         _children.push_back(child);
-        child->setParent(this);
+        child->_parent = this; // Evita bucle redundante
+        child->update();       // Actualiza transformaciones
     }
 }
+
 
 void Transform::removeChild(Transform* child) {
     _children.erase(std::remove(_children.begin(), _children.end(), child), _children.end());
     if (child) {
-        child->setParent(nullptr);
+        child->_parent = nullptr;
+        child->update(); // Recalcula sin padre
     }
 }
 

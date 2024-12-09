@@ -90,7 +90,10 @@ void GameObject::draw() const {
 
     if (hasTexture()) glDisable(GL_TEXTURE_2D);
 
+    if (parent == nullptr) {
     for (const auto& child : children) child->draw();
+    }
+    
 
     glPopMatrix();
 }
@@ -137,9 +140,6 @@ void GameObject::addChild(GameObject* child) {
 void GameObject::removeChild(GameObject* child) {
     children.erase(std::remove(children.begin(), children.end(), child), children.end());
 }
-
-
-
 bool GameObject::hasChildren() const {
     return !children.empty();
 }

@@ -231,8 +231,8 @@ void MyGUI::ShowHierarchy() {
             if (SceneManager::gameObjectsOnScene.empty()) continue;
 
             // Identificar si este objeto es seleccionado
-            bool isSelected = (SceneManager::selectedObject == &go);
-
+            bool isSelected = (SceneManager::selectedObject == &go);            
+         
             // Crear la entrada en la jerarquía
             ImGui::Selectable(go.getName().c_str(), isSelected);
 
@@ -259,7 +259,7 @@ void MyGUI::ShowHierarchy() {
                         // Aquí se maneja el emparentamiento
                         if (draggedObject != &go) {
                             draggedObject->setParent(&go);
-                           /* SceneManager::gameObjectsOnScene.erase(draggedObject);*/
+                           // SceneManager::gameObjectsOnScene.erase(draggedObject);
                         }
                     }
                 }
