@@ -322,10 +322,16 @@ void display_func() {
 
     for (auto& go : SceneManager::gameObjectsOnScene) {
         if (isBoundingBoxInsideFrustum(go.boundingBox(), frustumPlanes)) {
+            glColor3f(0.0f, 1.0f, 0.0f); // Green for visible objects
             go.draw();
-            drawBoundingBox(go.boundingBox());
         }
+        else {
+            glColor3f(1.0f, 0.0f, 0.0f); // Red for culled objects
+        }
+        drawBoundingBox(go.boundingBox());
     }
+    auto frustumCorners = calculateFrustumCorners(secondaryCamera.GetComponent<CameraComponent>()->camera());
+    drawFrustum(frustumCorners);
 
     drawFloorGrid(16, 0.25);
 }
