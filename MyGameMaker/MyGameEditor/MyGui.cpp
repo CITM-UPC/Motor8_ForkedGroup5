@@ -341,7 +341,7 @@ void MyGUI::renderInspector() {
 
         // Opciones de malla
         if (persistentSelectedObject->hasMesh() && ImGui::CollapsingHeader("Mesh")) {
-            ImGui::Text("Mesh Path: %s", persistentSelectedObject->meshPath().c_str());
+            ImGui::Text("Mesh Path: %s", persistentSelectedObject->meshPath.c_str());
             if (ImGui::BeginDragDropTarget()) {
                 if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_FILE")) {
                     const char* path = (const char*)payload->Data;
@@ -354,7 +354,7 @@ void MyGUI::renderInspector() {
 
         // Opciones de textura
         if (persistentSelectedObject->hasTexture() && ImGui::CollapsingHeader("Texture")) {
-            ImGui::Text("Texture Path: %s", persistentSelectedObject->texturePath().c_str());
+            ImGui::Text("Texture Path: %s", persistentSelectedObject->texturePath.c_str());
             if (ImGui::BeginDragDropTarget()) {
                 if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_FILE")) {
                     const char* path = (const char*)payload->Data;
