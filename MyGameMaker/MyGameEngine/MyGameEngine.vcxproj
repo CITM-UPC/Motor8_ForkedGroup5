@@ -137,6 +137,7 @@
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="readOnlyView.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="TextureImporter.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="TransformComponent.h" />
     <ClInclude Include="types.h" />
@@ -149,6 +150,7 @@
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="TextureImporter.cpp" />
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="TransformComponent.cpp" />
   </ItemGroup>

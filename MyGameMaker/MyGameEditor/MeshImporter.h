@@ -3,6 +3,7 @@
 #include <vector>
 #include <fstream>
 #include <glm/glm.hpp>
+#include <string>
 
 class MeshImporter
 {
@@ -18,8 +19,9 @@ public:
 
     MeshDTO ImportMesh(const aiMesh* mesh);
 
-    void SaveMeshToFile(const MeshDTO& mesh, const std::string& filePath);
-    MeshDTO LoadMeshFromFile(const std::string& filePath);
+    void SaveMeshToBinaryFile(const MeshDTO& mesh, const std::string& filePath);
+    MeshDTO LoadMeshFromBinaryFile(const std::string& filePath);
+
 };
 
 std::ostream& operator<<(std::ostream& os, const MeshImporter::MeshDTO& mesh)

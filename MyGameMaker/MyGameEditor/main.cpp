@@ -54,6 +54,33 @@ void initOpenGL() {
     glEnable(GL_DEPTH_TEST);
     glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 }
+//------CODIGO PARA GUARDAR Y CARGAR TEXTURAS------
+//#include "TextureImporter.h"
+//#include "stb_image.h"
+//
+//void ImportAndSaveTexture(const std::string& imagePath, const std::string& outputPath) {
+//    int width, height, channels;
+//    unsigned char* imageData = stbi_load(imagePath.c_str(), &width, &height, &channels, 0);
+//
+//    if (!imageData) {
+//        throw std::runtime_error("Failed to load texture: " + imagePath);
+//    }
+//
+//    TextureImporter::TextureDTO texture;
+//    texture.width = width;
+//    texture.height = height;
+//    texture.channels = channels;
+//    texture.data.assign(imageData, imageData + (width * height * channels));
+//
+//    stbi_image_free(imageData);
+//
+//    TextureImporter importer;
+//    importer.SaveTextureToBinaryFile(texture, outputPath);
+//}
+// -----------------------------------------
+//TextureImporter importer;
+//TextureImporter::TextureDTO texture = importer.LoadTextureFromBinaryFile("Library/texture.mytexture");
+
 
 //Mouse relative positions
 glm::vec2 getMousePosition() {
