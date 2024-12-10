@@ -6,6 +6,7 @@
 
 std::vector<GameObject> SceneManager::gameObjectsOnScene;
 GameObject* SceneManager::selectedObject = nullptr;
+SceneSerializer::Scene SceneManager::currentScene;  // Inicializa la escena actual
 
 void SceneManager::spawnBakerHouse() 
 {
@@ -77,4 +78,12 @@ void SceneManager::LoadGameObject(const char* filePath) {
 
 GameObject* SceneManager::getGameObject(int index) {
 	return &gameObjectsOnScene[index];
+}
+
+SceneSerializer::Scene& SceneManager::GetCurrentScene() {
+    return currentScene;
+}
+
+void SceneManager::SetCurrentScene(const SceneSerializer::Scene& scene) {
+    currentScene = scene;
 }
