@@ -12,6 +12,9 @@ public:
 	static void spawnStreet();
 	static GameObject* getGameObject(int index);
     //File drop handler
+	static void DeleteGameObject(GameObject* gameObject);
+	static GameObject* CreateEmptyGameObject();
+	static void LoadGameObject(const char* filePath);
 
 public: 
 	static std::vector<GameObject> gameObjectsOnScene;

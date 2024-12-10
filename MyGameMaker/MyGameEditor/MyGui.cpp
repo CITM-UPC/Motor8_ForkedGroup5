@@ -396,6 +396,49 @@ void MyGUI::renderInspector() {
                 ImGui::EndDragDropTarget();
             }
         }
+
+        // Opciones adicionales
+        if (ImGui::CollapsingHeader("Options")) {
+            if (ImGui::Button("Delete")) {
+                SceneManager::DeleteGameObject(persistentSelectedObject);
+                persistentSelectedObject = nullptr;
+                SceneManager::selectedObject = nullptr;
+            }
+
+            if (ImGui::Button("Reparent")) {
+                ImGui::OpenPopup("Select Parent");
+            }
+
+            if (ImGui::BeginPopup("Select Parent")) {
+                ImGui::Text("Select new parent for the selected object:");
+                ImGui::Separator();
+
+                for (auto& go : SceneManager::gameObjectsOnScene) {
+                    if (ImGui::Selectable(go.getName().c_str())) {
+                        if (SceneManager::selectedObject != &go) {
+                            SceneManager::selectedObject->setParent(&go);
+                            Console::Instance().Log("Reparented " + SceneManager::selectedObject->getName() + " to " + go.getName());
+                        }
+                        else {
+                            Console::Instance().Log("Cannot reparent an object to itself.");
+                        }
+                        ImGui::CloseCurrentPopup();
+                    }
+                }
+
+                ImGui::EndPopup();
+            }
+
+            if (ImGui::Button("Create Empty")) {
+                GameObject* newObject = SceneManager::CreateEmptyGameObject();
+                newObject->setParent(persistentSelectedObject);
+            }
+
+            if (ImGui::Button("Create Children")) {
+                GameObject* newChild = SceneManager::CreateEmptyGameObject();
+                newChild->setParent(persistentSelectedObject);
+            }
+        }
     }
     else {
         ImGui::Text("No GameObject selected.");
@@ -403,6 +446,7 @@ void MyGUI::renderInspector() {
 
     ImGui::End();
 }
+
 
 
 void MyGUI::render() {
