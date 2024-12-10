@@ -143,7 +143,6 @@
     <ClCompile Include="BasicShapesManager.cpp" />
     <ClCompile Include="Console.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="MeshImporter.cpp" />
     <ClCompile Include="MyGui.cpp" />
     <ClCompile Include="MyWindow.cpp" />
     <ClCompile Include="SceneManager.cpp" />
@@ -152,7 +151,6 @@
   <ItemGroup>
     <ClInclude Include="BasicShapesManager.h" />
     <ClInclude Include="Console.h" />
-    <ClInclude Include="MeshImporter.h" />
     <ClInclude Include="MyGui.h" />
     <ClInclude Include="MyWindow.h" />
     <ClInclude Include="SceneManager.h" />

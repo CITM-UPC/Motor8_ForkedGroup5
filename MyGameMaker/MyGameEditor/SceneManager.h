@@ -4,8 +4,6 @@
 #include <string>
 #include <vector>
 #include "MyGameEngine/GameObject.h"
-#include "MyGameEngine/SceneSerializer.h"
-
 class SceneManager
 {
 public:
@@ -22,11 +20,5 @@ public:
 	static std::vector<GameObject> gameObjectsOnScene;
 	static GameObject* selectedObject;
 
-public:
-	static SceneSerializer::Scene& GetCurrentScene();  // Devuelve la escena actual
-	static void SetCurrentScene(const SceneSerializer::Scene& scene); // Actualiza la escena actual
-
-private:
-	static SceneSerializer::Scene currentScene;  // La escena actual
 };
 

@@ -1,6 +1,5 @@
 #include "MyGUI.h"
 #include "MyGameEngine/GameObject.h"
-#include "MyGameEngine/SceneSerializer.h"
 #include "SceneManager.h"
 #include "BasicShapesManager.h"
 #include "SystemInfo.h"
@@ -63,32 +62,22 @@ void MyGUI::ShowMainMenuBar() {
 
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("File")) {
-            // Menú para guardar y cargar escenas
-            if (ImGui::MenuItem("Save Scene")) {
-                const char* filePath = tinyfd_saveFileDialog(
-                    "Save Scene",
-                    "Library/Scenes/MyScene.scene",
-                    0, nullptr, nullptr
-                );
-                if (filePath) {
-                    SceneSerializer serializer;
-                    serializer.SaveSceneToFile(SceneManager::GetCurrentScene(), filePath);
-                    Console::Instance().Log("Scene saved to " + std::string(filePath));
+            if (ImGui::BeginMenu("Import")) {
+                if (ImGui::MenuItem("FBX")) {
+                    const char* filterPatterns[1] = { "*.fbx" };
+                    const char* filePath = tinyfd_openFileDialog(
+                        "Select an FBX file",
+                        "",
+                        1,
+                        filterPatterns,
+                        NULL,
+                        0
+                    );
+                    if (filePath) {
+                        SceneManager::LoadGameObject(filePath);
+                    }
                 }
-            }
-            if (ImGui::MenuItem("Load Scene")) {
-                const char* filePath = tinyfd_openFileDialog(
-                    "Load Scene",
-                    "",
-                    0, nullptr, nullptr,
-                    0
-                );
-                if (filePath) {
-                    SceneSerializer serializer;
-                    auto scene = serializer.LoadSceneFromFile(filePath);
-                    SceneManager::SetCurrentScene(scene);
-                    Console::Instance().Log("Scene loaded from " + std::string(filePath));
-                }
+                ImGui::EndMenu();
             }
             if (ImGui::MenuItem("Quit")) {
                 SDL_Quit();
@@ -96,7 +85,10 @@ void MyGUI::ShowMainMenuBar() {
             }
             ImGui::EndMenu();
         }
-
+        if (ImGui::BeginMenu("Mesh")) {
+            ImGui::Checkbox("Mesh Creator", &show_spawn_figures_window);
+            ImGui::EndMenu();
+        }
         if (ImGui::BeginMenu("Help")) {
             if (ImGui::MenuItem("About")) {
                 const char* url = "https://github.com/CITM-UPC/Motor8_ForkedGroup5";
@@ -107,10 +99,33 @@ void MyGUI::ShowMainMenuBar() {
             ImGui::Checkbox("Software Info", &show_software_window);
             ImGui::EndMenu();
         }
+        if (ImGui::BeginMenu("Control")) {
+            if (ImGui::MenuItem("Start", NULL, is_running)) {
+                is_running = true;
+                is_paused = false;
+                Console::Instance().Log("System started.");
+                // Lógica para iniciar la funcionalidad
+            }
+            if (ImGui::MenuItem("Stop", NULL, !is_running)) {
+                is_running = false;
+                Console::Instance().Log("System stopped.");
+                // Lógica para detener la funcionalidad
+            }
+            if (ImGui::MenuItem("Pause", NULL, is_paused)) {
+                is_paused = !is_paused;
+                if (is_paused) {
+                    Console::Instance().Log("System paused.");
+                }
+                else {
+                    Console::Instance().Log("System resumed.");
+                }
+                // Lógica para pausar/reanudar la funcionalidad
+            }
+            ImGui::EndMenu();
+        }
         ImGui::EndMainMenuBar();
     }
 }
-
 
 void MyGUI::ShowConsole() {
     ImGui::SetNextWindowSize(ImVec2(680, 200), ImGuiCond_Always);
@@ -135,14 +150,15 @@ void MyGUI::ShowConsole() {
 }
 
 void MyGUI::ShowAssetsFolder(bool* p_open) {
-    ImGui::SetNextWindowSize(ImVec2(800, 600), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(800, 600), ImGuiCond_FirstUseEver); // Permite redimensionar la ventana
     ImGui::Begin("Assets Folder", p_open);
 
     static std::vector<std::string> files;
     static bool filesLoaded = false;
+    static int selectedFileIndex = -1;
 
     if (!filesLoaded) {
-        std::string assetsPath = "Assets";
+        std::string assetsPath = "Assets"; // Cambia esto a la ruta de tu carpeta de Assets
         for (const auto& entry : std::experimental::filesystem::directory_iterator(assetsPath)) {
             files.push_back(entry.path().filename().string());
         }
@@ -150,13 +166,16 @@ void MyGUI::ShowAssetsFolder(bool* p_open) {
     }
 
     for (int i = 0; i < files.size(); ++i) {
-        if (ImGui::Selectable(files[i].c_str())) {
+        if (ImGui::Selectable(files[i].c_str(), selectedFileIndex == i)) {
+            selectedFileIndex = i;
+            // Aquí puedes agregar la lógica para manejar la selección del archivo
             Console::Instance().Log("Selected file: " + files[i]);
         }
 
+        // Comenzar el "drag" si se selecciona este archivo
         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
             const char* filePath = files[i].c_str();
-            ImGui::SetDragDropPayload("ASSET_FILE", filePath, strlen(filePath) + 1);
+            ImGui::SetDragDropPayload("ASSET_FILE", filePath, strlen(filePath) + 1); // El payload debe contener la ruta del archivo
             ImGui::Text("Dragging %s", files[i].c_str());
             ImGui::EndDragDropSource();
         }
@@ -164,6 +183,7 @@ void MyGUI::ShowAssetsFolder(bool* p_open) {
 
     ImGui::End();
 }
+
 
 
 void MyGUI::ShowSpawnFigures(bool* p_open) {
@@ -331,6 +351,7 @@ void MyGUI::renderInspector() {
             if (ImGui::DragFloat3("Position", &position[0], 1.0f)) {
                 persistentSelectedObject->transform().setPos(position);
             }
+
             if (ImGui::DragFloat3("Rotation", &rotation[0], 1.0f)) {
                 persistentSelectedObject->transform().setRotation(rotation);
             }
@@ -339,29 +360,83 @@ void MyGUI::renderInspector() {
             }
         }
 
-        // Opciones de malla
         if (persistentSelectedObject->hasMesh() && ImGui::CollapsingHeader("Mesh")) {
-            ImGui::Text("Mesh Path: %s", persistentSelectedObject->meshPath().c_str());
+            Mesh& mesh = persistentSelectedObject->mesh();
+
+            static bool showNormalsPerTriangle = false;
+            static bool showNormalsPerFace = false;
+
+            ImGui::Checkbox("Show Normals (Per Triangle)", &showNormalsPerTriangle);
+            ImGui::Checkbox("Show Normals (Per Face)", &showNormalsPerFace);
+            if (showNormalsPerTriangle) {
+                persistentSelectedObject->mesh().drawNormals(persistentSelectedObject->transform().mat());
+            }
+            if (showNormalsPerFace) {
+                persistentSelectedObject->mesh().drawNormalsPerFace(persistentSelectedObject->transform().mat());
+            }
+        }
+        if (persistentSelectedObject->hasTexture() && ImGui::CollapsingHeader("Texture")) {
+            Texture& texture = persistentSelectedObject->texture();
+            static bool showCheckerTexture = false;
+            ImGui::Text("Width: %d", texture.image().width());
+            ImGui::Text("Height: %d", texture.image().height());
+
+            if (ImGui::Button("Toggle Checker Texture")) {
+                showCheckerTexture = !showCheckerTexture;
+                persistentSelectedObject->hasCheckerTexture = showCheckerTexture;
+            }
+
+            // Drag and Drop para añadir una textura
             if (ImGui::BeginDragDropTarget()) {
-                if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_FILE")) {
-                    const char* path = (const char*)payload->Data;
-                    persistentSelectedObject->setMesh(path);
-                    Console::Instance().Log("Mesh assigned: " + std::string(path));
+                if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("TEXTURE_PATH")) {
+                    IM_ASSERT(payload->DataSize == sizeof(const char*));
+                    const char* path = *(const char**)payload->Data;
+                    persistentSelectedObject->setTexture(path);
                 }
                 ImGui::EndDragDropTarget();
             }
         }
 
-        // Opciones de textura
-        if (persistentSelectedObject->hasTexture() && ImGui::CollapsingHeader("Texture")) {
-            ImGui::Text("Texture Path: %s", persistentSelectedObject->texturePath().c_str());
-            if (ImGui::BeginDragDropTarget()) {
-                if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_FILE")) {
-                    const char* path = (const char*)payload->Data;
-                    persistentSelectedObject->setTexture(path);
-                    Console::Instance().Log("Texture assigned: " + std::string(path));
+        // Opciones adicionales
+        if (ImGui::CollapsingHeader("Options")) {
+            if (ImGui::Button("Delete")) {
+                SceneManager::DeleteGameObject(persistentSelectedObject);
+                persistentSelectedObject = nullptr;
+                SceneManager::selectedObject = nullptr;
+            }
+
+            if (ImGui::Button("Reparent")) {
+                ImGui::OpenPopup("Select Parent");
+            }
+
+            if (ImGui::BeginPopup("Select Parent")) {
+                ImGui::Text("Select new parent for the selected object:");
+                ImGui::Separator();
+
+                for (auto& go : SceneManager::gameObjectsOnScene) {
+                    if (ImGui::Selectable(go.getName().c_str())) {
+                        if (SceneManager::selectedObject != &go) {
+                            SceneManager::selectedObject->setParent(&go);
+                            Console::Instance().Log("Reparented " + SceneManager::selectedObject->getName() + " to " + go.getName());
+                        }
+                        else {
+                            Console::Instance().Log("Cannot reparent an object to itself.");
+                        }
+                        ImGui::CloseCurrentPopup();
+                    }
                 }
-                ImGui::EndDragDropTarget();
+
+                ImGui::EndPopup();
+            }
+
+            if (ImGui::Button("Create Empty")) {
+                GameObject* newObject = SceneManager::CreateEmptyGameObject();
+                newObject->setParent(persistentSelectedObject);
+            }
+
+            if (ImGui::Button("Create Children")) {
+                GameObject* newChild = SceneManager::CreateEmptyGameObject();
+                newChild->setParent(persistentSelectedObject);
             }
         }
     }
@@ -371,6 +446,8 @@ void MyGUI::renderInspector() {
 
     ImGui::End();
 }
+
+
 
 void MyGUI::render() {
     ImGui_ImplOpenGL3_NewFrame();

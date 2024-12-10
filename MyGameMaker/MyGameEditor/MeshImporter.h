@@ -1,5 +1,5 @@
 #pragma once
-#include "../MyGameEngine/Mesh.h"
+#include "MyGameEngine/Mesh.h"
 #include <vector>
 #include <fstream>
 #include <glm/glm.hpp>

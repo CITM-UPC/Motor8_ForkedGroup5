@@ -9,7 +9,6 @@
 #include "Texture.h"
 #include "BoundingBox.h"
 #include "Mesh.h"
-#include "../MyGameEditor/MeshImporter.h"
 #include "CameraComponent.h"
 #include "Component.h"
 #include "TransformComponent.h"
@@ -18,7 +17,7 @@
 #include <string>
 
 class GameObject : public std::enable_shared_from_this<GameObject>, public TreeExt<GameObject> {
-private:    
+private:
     Transform _transform;                       // Transformación del objeto
     glm::u8vec3 _color = glm::u8vec3(255, 255, 255); // Color del objeto
     Texture _texture;                           // Textura del objeto
@@ -83,13 +82,14 @@ public:
 
     // Métodos para manejar textura y malla
     void setTextureImage(const std::shared_ptr<Image>& img_ptr) { _texture.setImage(img_ptr); }
+    void setMesh(const std::shared_ptr<Mesh>& mesh_ptr) { _mesh_ptr = mesh_ptr; }
     void setTexture(const std::string& path);
 
     // Comprobaciones de existencia de textura y malla
     bool hasTexture() const { return _texture.id(); }
     bool hasMesh() const { return _mesh_ptr != nullptr; }
 
-    std::string GetName() const;   
+    std::string GetName() const;
 
     // Método para dibujar el objeto
     void draw() const; // Definir en el .cpp
@@ -120,36 +120,6 @@ public:
 private:    
     GameObject* parent = nullptr;         // Padre del objeto
     std::vector<GameObject*> children;    // Hijos del objeto
-
-    public:
-        std::string meshPath;      // Ruta de la malla asociada
-        std::string texturePath;   // Ruta de la textura asociada
-
-public:
-    const std::string& getMeshPath() const { return meshPath; }
-    void setMeshPath(const std::string& path) { meshPath = path; }
-
-    const std::string& getTexturePath() const { return texturePath; }
-    void setTexturePath(const std::string& path) { texturePath = path; }
-
-    private:
-        std::shared_ptr<Mesh> maya; // Malla asociada al objeto
-
-public:
-    
-    void setMesh(const std::shared_ptr<Mesh>& newMesh) {
-        maya = newMesh;
-    }
-
-    void setMesh(const std::string& meshPath) {
-        MeshImporter importer;
-        MeshImporter::MeshDTO dto = importer.LoadMeshFromBinaryFile(meshPath);
-        maya = std::make_shared<Mesh>(dto);
-    }
-
-    const std::shared_ptr<Mesh>& getMesh() const {
-        return maya;
-    }
 };
 
 template <typename T, typename... Args>
