@@ -24,6 +24,7 @@
 #include <MyGameEngine/GameObject.cpp>
 #include "MyGameEngine/BoundingBox.h"
 #include "MyGameEngine/types.h"
+#include "MeshImporter.h"
 
 
 using namespace std;
@@ -39,7 +40,9 @@ GameObject mainCamera("Main Camera");
 GameObject secondaryCamera("Secondary Camera");
 Camera* activeCamera = nullptr;  // Pointer to track the current active camera
 
-
+MeshImporter importer;
+MeshImporter::MeshDTO meshDTO;
+auto testMesh = make_shared<Mesh>();
 
 SDL_Event event;
 bool rightMouseButtonDown = false;
@@ -51,7 +54,6 @@ void initOpenGL() {
     glEnable(GL_DEPTH_TEST);
     glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 }
-
 
 //Mouse relative positions
 glm::vec2 getMousePosition() {
