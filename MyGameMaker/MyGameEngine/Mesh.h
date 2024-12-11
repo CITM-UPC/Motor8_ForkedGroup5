@@ -9,13 +9,18 @@
 #include <glm/glm.hpp>
 #include "BufferObject.h"
 #include "BoundingBox.h"
+#include "../MyGameEditor/MeshImporter.h"
 
 
 
 class Mesh
 {
-	std::vector<glm::vec3> _vertices;
-	std::vector<unsigned int> _indices;
+public:
+private:
+	std::vector<glm::vec3> _vertices;       // Vértices de la malla
+	std::vector<glm::vec2> _texCoords;      // Coordenadas de textura
+	std::vector<glm::vec3> _normals;        // Normales de la malla
+	std::vector<unsigned int> _indices;     // Índices para dibujo con elementos
 
 	BufferObject _vertexBuffer;
 	BufferObject _indexBuffer;
@@ -23,6 +28,13 @@ class Mesh
 	BufferObject _normalsBuffer;
 	BufferObject _colorsBuffer;
 
+public:
+	Mesh() = default;  // Constructor por defecto
+
+	// Constructor que usa un MeshDTO
+	Mesh(const MeshImporter::MeshDTO& dto);
+
+private:
 	unsigned int _idTexture = 0;
 
 	BoundingBox _boundingBox;
@@ -31,9 +43,9 @@ class Mesh
 
 public:
 
-	Mesh();
-
 	const auto& vertices() const { return _vertices; }
+	const auto& textCoords() const { return _texCoords; }
+	const auto& normals() const { return _normals; }
 	const auto& indices() const { return _indices; }
 	const auto& boundingBox() const { return _boundingBox; }
 	//const auto& meshLoader() const { return *_meshLoader; }
@@ -48,9 +60,5 @@ public:
 
 	// Load Texture
 	void drawNormals(const glm::mat4& modelMatrix);
-	void drawNormalsPerFace(const glm::mat4& modelMatrix);
-
-
-
-
+	void drawNormalsPerFace(const glm::mat4& modelMatrix);	
 };

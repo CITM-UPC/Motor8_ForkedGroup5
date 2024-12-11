@@ -9,6 +9,7 @@
 #include "Texture.h"
 #include "BoundingBox.h"
 #include "Mesh.h"
+#include "../MyGameEditor/MeshImporter.h"
 #include "CameraComponent.h"
 #include "Component.h"
 #include "TransformComponent.h"
@@ -36,7 +37,6 @@ private:
     mutable std::shared_ptr<Component> cachedComponent;
 	
 public:
-
     std::string name;
     bool hasCheckerTexture = false;
     // Constructor y destructor
@@ -82,7 +82,7 @@ public:
 
     // Métodos para manejar textura y malla
     void setTextureImage(const std::shared_ptr<Image>& img_ptr) { _texture.setImage(img_ptr); }
-    void setMesh(const std::shared_ptr<Mesh>& mesh_ptr) { _mesh_ptr = mesh_ptr; }
+    void setMesh(const std::string& path);
     void setTexture(const std::string& path);
 
     // Comprobaciones de existencia de textura y malla
@@ -120,6 +120,19 @@ public:
 private:    
     GameObject* parent = nullptr;         // Padre del objeto
     std::vector<GameObject*> children;    // Hijos del objeto
+
+public:
+        std::string meshFilePath;    // Ruta del archivo de malla
+        std::string textureFilePath; // Ruta del archivo de textura
+
+public:
+    // Métodos para acceder y modificar la ruta de la malla
+    const std::string& getMeshPath() const { return meshFilePath; }
+    void setMeshPath(const std::string& path) { meshFilePath = path; }
+
+    // Métodos para acceder y modificar la ruta de la textura
+    const std::string& getTexturePath() const { return textureFilePath; }
+    void setTexturePath(const std::string& path) { textureFilePath = path; }
 };
 
 template <typename T, typename... Args>

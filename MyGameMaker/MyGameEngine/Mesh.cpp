@@ -9,7 +9,19 @@ using namespace std;
 
 Mesh::Mesh()
 {
-	//_meshLoader = new MeshLoader();
+	
+}
+
+Mesh::Mesh(const MeshImporter::MeshDTO& dto) {
+	// Inicializa los datos de la malla con los datos del DTO
+	_vertices = dto.vertices;
+	_texCoords = dto.texCoords;
+	_normals = dto.normals;
+	_indices = dto.indices;
+
+	// Opcional: Inicializa buffers si es necesario
+	_vertexBuffer.loadData(_vertices.data(), _vertices.size() * sizeof(glm::vec3));
+	_indexBuffer.loadIndices(_indices.data(), _indices.size());
 }
 
 void Mesh::load(const glm::vec3* vertices, size_t num_verts, unsigned int* indices, size_t num_indexs)

@@ -56,5 +56,8 @@
     <ClInclude Include="SystemInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MeshImporter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

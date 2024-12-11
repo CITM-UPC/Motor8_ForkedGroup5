@@ -1,51 +1,35 @@
 #include "TextureImporter.h"
 #include <fstream>
 #include <stdexcept>
-#include <iostream>
 
 void TextureImporter::SaveTextureToBinaryFile(const TextureDTO& texture, const std::string& filePath) {
-    std::ofstream file(filePath, std::ios::binary);
-    if (!file.is_open()) {
-        throw std::runtime_error("Failed to open file for writing: " + filePath);
+    std::ofstream outFile(filePath, std::ios::binary);
+    if (!outFile) {
+        throw std::runtime_error("Unable to open file for writing: " + filePath);
     }
 
-    const char* magic = "MYTEXT";
-    file.write(magic, 6); // Identificador del archivo
-
-    file.write(reinterpret_cast<const char*>(&texture.width), sizeof(texture.width));
-    file.write(reinterpret_cast<const char*>(&texture.height), sizeof(texture.height));
-    file.write(reinterpret_cast<const char*>(&texture.channels), sizeof(texture.channels));
-
-    unsigned int dataSize = static_cast<unsigned int>(texture.data.size());
-    file.write(reinterpret_cast<const char*>(&dataSize), sizeof(dataSize));
-    file.write(reinterpret_cast<const char*>(texture.data.data()), dataSize);
-
-    file.close();
+    // Escribir dimensiones y datos
+    outFile.write(reinterpret_cast<const char*>(&texture.width), sizeof(texture.width));
+    outFile.write(reinterpret_cast<const char*>(&texture.height), sizeof(texture.height));
+    outFile.write(reinterpret_cast<const char*>(&texture.channels), sizeof(texture.channels));
+    outFile.write(reinterpret_cast<const char*>(texture.data.data()), texture.data.size());
 }
 
+
 TextureImporter::TextureDTO TextureImporter::LoadTextureFromBinaryFile(const std::string& filePath) {
-    std::ifstream file(filePath, std::ios::binary);
-    if (!file.is_open()) {
-        throw std::runtime_error("Failed to open file for reading: " + filePath);
+    std::ifstream inFile(filePath, std::ios::binary);
+    if (!inFile) {
+        throw std::runtime_error("Unable to open file for reading: " + filePath);
     }
 
     TextureDTO texture;
+    inFile.read(reinterpret_cast<char*>(&texture.width), sizeof(texture.width));
+    inFile.read(reinterpret_cast<char*>(&texture.height), sizeof(texture.height));
+    inFile.read(reinterpret_cast<char*>(&texture.channels), sizeof(texture.channels));
 
-    char magic[6];
-    file.read(magic, 6);
-    if (std::string(magic, 6) != "MYTEXT") {
-        throw std::runtime_error("Invalid file format: " + filePath);
-    }
-
-    file.read(reinterpret_cast<char*>(&texture.width), sizeof(texture.width));
-    file.read(reinterpret_cast<char*>(&texture.height), sizeof(texture.height));
-    file.read(reinterpret_cast<char*>(&texture.channels), sizeof(texture.channels));
-
-    unsigned int dataSize;
-    file.read(reinterpret_cast<char*>(&dataSize), sizeof(dataSize));
+    size_t dataSize = texture.width * texture.height * texture.channels;
     texture.data.resize(dataSize);
-    file.read(reinterpret_cast<char*>(texture.data.data()), dataSize);
+    inFile.read(reinterpret_cast<char*>(texture.data.data()), dataSize);
 
-    file.close();
     return texture;
 }

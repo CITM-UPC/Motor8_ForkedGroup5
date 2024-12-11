@@ -1,5 +1,8 @@
 #include "GameObject.h"
 #include "Texture.h"
+#include "Mesh.h"
+#include "../MyGameEditor/MeshImporter.h"
+#include "TextureImporter.h"
 #include <GL/glew.h>
 #include <glm/gtc/epsilon.hpp>
 #include <iostream>
@@ -25,7 +28,6 @@ GameObject::GameObject(const std::string& name) : name(name), cachedComponentTyp
         AddComponent<CameraComponent>();
     }
 }
-
 
 // Crea la textura de tablero y devuelve el ID de la textura
 void CheckerTexture(bool hasCreatedCheckerImage) {
@@ -57,10 +59,20 @@ std::string GameObject::GetName() const
 }
 
 void GameObject::setTexture(const std::string& path) {
-    textura.loadFromFile(path);
+    textura.loadFromBinaryFile(path);
+    setTexturePath(path);                                 // Guardar la ruta
 }
 
+void GameObject::setMesh(const std::string& path) {
+    MeshImporter importer;
+    auto dto = importer.LoadMeshFromBinaryFile(path); // Cargar malla desde archivo
+    _mesh_ptr = std::make_shared<Mesh>(dto);              // Crear malla usando el DTO
+    setMeshPath(path);                               // Guardar la ruta
+}
+
+
 inline static void glVertex3(const vec3& v) { glVertex3dv(&v.x); }
+
 static void drawWiredQuad(const vec3& v0, const vec3& v1, const vec3& v2, const vec3& v3) {
     glBegin(GL_LINE_LOOP);
     glVertex3(v0);
@@ -69,6 +81,7 @@ static void drawWiredQuad(const vec3& v0, const vec3& v1, const vec3& v2, const 
     glVertex3(v3);
     glEnd();
 }
+
 static void drawBoundingBox(const BoundingBox& bbox) {
     glLineWidth(2.0);
     drawWiredQuad(bbox.v000(), bbox.v001(), bbox.v011(), bbox.v010());
@@ -78,8 +91,6 @@ static void drawBoundingBox(const BoundingBox& bbox) {
     drawWiredQuad(bbox.v000(), bbox.v010(), bbox.v110(), bbox.v100());
     drawWiredQuad(bbox.v001(), bbox.v011(), bbox.v111(), bbox.v101());
 }
-
-
 
 void GameObject::draw() const {
     glPushMatrix();

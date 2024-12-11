@@ -88,13 +88,13 @@ void BasicShapesManager::createFigure(int figureType, std::vector<GameObject>& g
     // Dependiendo del tipo de figura
     switch (figureType) {
     case 1:  // Triángulo
-        go.setMesh(MakeTriangleMesh(size));
+       // go.setMesh(MakeTriangleMesh(size));
         break;
     case 2:  // Cuadrado
-        go.setMesh(MakeQuadMesh(size));
+        //go.setMesh(MakeQuadMesh(size));
         break;
     case 3:  // Cubo
-        go.setMesh(MakeCubeMesh(size));
+       // go.setMesh(MakeCubeMesh(size));
         break;
     default:
         std::cout << "Figure type not recognized." << std::endl;

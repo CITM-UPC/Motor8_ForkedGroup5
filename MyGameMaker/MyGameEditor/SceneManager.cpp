@@ -3,50 +3,16 @@
 #include "MyGameEngine/Mesh.h"
 #include "MyGameEngine/Image.h"
 #include "Console.h"
+#include "../MyGameEngine/SceneSerializer.h"
 
 std::vector<GameObject> SceneManager::gameObjectsOnScene;
 GameObject* SceneManager::selectedObject = nullptr;
-
-void SceneManager::spawnBakerHouse() 
-{
-    GameObject go;
-    auto mesh = std::make_shared<Mesh>();
-    mesh->LoadFile("Assets/BakerHouse.fbx");
-    go.setMesh(mesh);
-    auto imageTexture = std::make_shared<Image>();
-    imageTexture->loadTexture("Assets/Baker_House.png");
-	go.setTextureImage(imageTexture);
-	go.transform().pos() = vec3(4, 0, 0);
-    go.setName("GameObject (" + std::to_string(gameObjectsOnScene.size()) + ")");
-    SceneManager::gameObjectsOnScene.push_back(go);
-}
-
-void SceneManager::spawnStreet()
-{
-    GameObject go;
-    auto mesh = std::make_shared<Mesh>();
-    mesh->LoadFile("Assets/Street/Street environment_V01.fbx");
-    go.setMesh(mesh);
-
-    auto imageTexture = std::make_shared<Image>();
-    imageTexture->loadTexture("Assets/Street/Building_V01_C.png");
-    go.setTextureImage(imageTexture);
-
-    // Ajustes de transformación
-    go.transform().pos() = vec3(4, 0, 0);
-    go.transform().rotate(-1.5708, vec3(1, 0, 0));
-
-    go.setName("GameObject (" + std::to_string(gameObjectsOnScene.size()) + ")");
-    SceneManager::gameObjectsOnScene.push_back(go);
-}
-
 
 void SceneManager::LoadGameObject(const std::string& filePath) {
     auto mesh = std::make_shared<Mesh>();
 
     GameObject go;
-    mesh->LoadFile(filePath.c_str());
-    go.setMesh(mesh);
+    go.setMesh(filePath);
     go.setName("GameObject (" + std::to_string(gameObjectsOnScene.size()) + ")");
     gameObjectsOnScene.push_back(go);
     Console::Instance().Log("Fbx imported succesfully.");
@@ -77,4 +43,77 @@ void SceneManager::LoadGameObject(const char* filePath) {
 
 GameObject* SceneManager::getGameObject(int index) {
 	return &gameObjectsOnScene[index];
+}
+
+void SceneManager::SaveScene(const std::string& filePath) {
+    SceneSerializer serializer;
+    SceneSerializer::Scene scene;
+
+    for (auto& go : gameObjectsOnScene) {
+        SceneSerializer::SceneObject obj;
+        obj.name = go.getName();
+        obj.transform.position = go.transform().pos();
+        obj.transform.rotation = go.transform().extractEulerAngles(go.transform().mat());
+        obj.transform.scale = go.transform().extractScale(go.transform().mat());
+        obj.meshFilePath = go.meshFilePath;
+        obj.textureFilePath = go.getTexturePath();
+        scene.objects.push_back(obj);
+    }
+
+    serializer.SaveSceneToFile(scene, filePath);
+    Console::Instance().Log("Scene saved to: " + filePath);
+}
+
+void SceneManager::LoadScene(const std::string& filePath) {
+    SceneSerializer serializer;
+    auto scene = serializer.LoadSceneFromFile(filePath);
+
+    gameObjectsOnScene.clear();
+
+    for (auto& obj : scene.objects) {
+        GameObject go;
+        go.setName(obj.name);
+        go.transform().setPos(obj.transform.position);
+        go.transform().setRotation(obj.transform.rotation);
+        go.transform().setScale(obj.transform.scale);
+        go.setMesh(filePath);
+        go.setTexture(obj.textureFilePath);
+        gameObjectsOnScene.push_back(go);
+    }
+
+    Console::Instance().Log("Scene loaded from: " + filePath);
+}
+
+// Retorna la escena actual serializada
+SceneSerializer::Scene SceneManager::GetCurrentScene() {
+    SceneSerializer::Scene scene;
+
+    for (auto& go : gameObjectsOnScene) {
+        SceneSerializer::SceneObject obj;
+        obj.name = go.getName();
+        obj.transform.position = go.transform().pos();
+        obj.transform.rotation = go.transform().extractEulerAngles(go.transform().mat());
+        obj.transform.scale = go.transform().extractScale(go.transform().mat());
+        obj.meshFilePath = go.getMeshPath();
+        obj.textureFilePath = go.getTexturePath();
+        scene.objects.push_back(obj);
+    }
+
+    return scene;
+}
+
+// Establece la escena actual desde una escena serializada
+void SceneManager::SetCurrentScene(const SceneSerializer::Scene& scene) {
+    gameObjectsOnScene.clear();
+
+    for (const auto& obj : scene.objects) {
+        GameObject go;
+        go.setName(obj.name);
+        go.transform().setPos(obj.transform.position);
+        go.transform().setRotation(obj.transform.rotation);
+        go.transform().setScale(obj.transform.scale);
+        go.setMesh(obj.meshFilePath);
+        go.setTexture(obj.textureFilePath);
+        gameObjectsOnScene.push_back(go);
+    }
 }

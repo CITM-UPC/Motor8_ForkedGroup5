@@ -1,6 +1,7 @@
 #include "MyGUI.h"
 #include "MyGameEngine/GameObject.h"
 #include "SceneManager.h"
+#include "../MyGameEngine/SceneSerializer.h"
 #include "BasicShapesManager.h"
 #include "SystemInfo.h"
 #include "Console.h"
@@ -54,85 +55,32 @@ MyGUI::~MyGUI() {
 }
 
 void MyGUI::ShowMainMenuBar() {
-    if (show_metrics_window) {
-        ShowMetricsWindow(&show_metrics_window);
-    }
-    if (show_hardware_window) {
-        ShowRenderSystemInfo(&show_hardware_window);
-    }
-    if (show_software_window) {
-        ShowLibraryVerions(&show_software_window);
-    }
-    if (show_spawn_figures_window) {
-        ShowSpawnFigures(&show_spawn_figures_window);
-    }
-
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("File")) {
-            if (ImGui::BeginMenu("Import")) {
-                if (ImGui::MenuItem("FBX")) {
-                    const char* filterPatterns[1] = { "*.fbx" };
-                    const char* filePath = tinyfd_openFileDialog(
-                        "Select an FBX file",
-                        "",
-                        1,
-                        filterPatterns,
-                        NULL,
-                        0
-                    );
-                    if (filePath) {
-                        SceneManager::LoadGameObject(filePath);
-                    }
+            if (ImGui::MenuItem("Save Scene")) {
+                const char* filePath = tinyfd_saveFileDialog("Save Scene", "Library/Scenes/MyScene.scene", 0, nullptr, nullptr);
+                if (filePath) {
+                    SceneSerializer serializer;
+                    serializer.SaveSceneToFile(SceneManager::GetCurrentScene(), filePath);
+                    Console::Instance().Log("Scene saved to " + std::string(filePath));
                 }
-                ImGui::EndMenu();
             }
-            if (ImGui::MenuItem("Quit")) {
-                SDL_Quit();
-                exit(0);
-            }
-            ImGui::EndMenu();
-        }
-        if (ImGui::BeginMenu("Mesh")) {
-            ImGui::Checkbox("Mesh Creator", &show_spawn_figures_window);
-            ImGui::EndMenu();
-        }
-        if (ImGui::BeginMenu("Help")) {
-            if (ImGui::MenuItem("About")) {
-                const char* url = "https://github.com/CITM-UPC/Motor8_ForkedGroup5";
-                SDL_OpenURL(url);
-            }
-            ImGui::Checkbox("Metrics", &show_metrics_window);
-            ImGui::Checkbox("Hardware Info", &show_hardware_window);
-            ImGui::Checkbox("Software Info", &show_software_window);
-            ImGui::EndMenu();
-        }
-        if (ImGui::BeginMenu("Control")) {
-            if (ImGui::MenuItem("Start", NULL, is_running)) {
-                is_running = true;
-                is_paused = false;
-                Console::Instance().Log("System started.");
-                // Lógica para iniciar la funcionalidad
-            }
-            if (ImGui::MenuItem("Stop", NULL, !is_running)) {
-                is_running = false;
-                Console::Instance().Log("System stopped.");
-                // Lógica para detener la funcionalidad
-            }
-            if (ImGui::MenuItem("Pause", NULL, is_paused)) {
-                is_paused = !is_paused;
-                if (is_paused) {
-                    Console::Instance().Log("System paused.");
+
+            if (ImGui::MenuItem("Load Scene")) {
+                const char* filePath = tinyfd_openFileDialog("Load Scene", "", 0, nullptr, nullptr, 0);
+                if (filePath) {
+                    SceneSerializer serializer;
+                    auto scene = serializer.LoadSceneFromFile(filePath);
+                    SceneManager::SetCurrentScene(scene);
+                    Console::Instance().Log("Scene loaded from " + std::string(filePath));
                 }
-                else {
-                    Console::Instance().Log("System resumed.");
-                }
-                // Lógica para pausar/reanudar la funcionalidad
             }
             ImGui::EndMenu();
         }
         ImGui::EndMainMenuBar();
     }
 }
+
 
 void MyGUI::ShowMainWindow() {
     ImGui::SetNextWindowSize(ImVec2(180, 55), ImGuiCond_Always);
@@ -156,7 +104,6 @@ void MyGUI::ShowMainWindow() {
 
     ImGui::End();
 }
-
 
 void MyGUI::ShowConsole() {
     if (currentViewMode != ViewMode::Console) return;
@@ -248,9 +195,6 @@ void MyGUI::ShowAssetsFolder(bool* p_open) {
 
     ImGui::End();
 }
-
-
-
 
 void MyGUI::ShowSpawnFigures(bool* p_open) {
     ImGui::Begin("Spawn Figures");
@@ -507,8 +451,6 @@ void MyGUI::renderInspector() {
 
     ImGui::End();
 }
-
-
 
 void MyGUI::render() {
     ImGui_ImplOpenGL3_NewFrame();
