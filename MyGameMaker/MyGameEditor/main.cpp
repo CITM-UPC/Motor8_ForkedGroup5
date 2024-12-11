@@ -513,14 +513,12 @@ int main(int argc, char* argv[]) {
     SceneManager::gameObjectsOnScene.push_back(mainCamera);
     mainCamera.GetComponent<CameraComponent>()->camera().transform().pos() = vec3(0, 1, 4);
     mainCamera.GetComponent<CameraComponent>()->camera().transform().rotate(glm::radians(180.0), vec3(0, 1, 0));
-    //SceneManager::spawnBakerHouse();
-    //SceneManager::spawnBakerHouse();
-    //SceneManager::spawnStreet();
+
 
     GameObject scene1 = SceneImporter::loadFromFile("Assets/BakerHouse.fbx");
     GameObject scene2 = SceneImporter::loadFromFile("Assets/strawberry.fbx");
     //GameObject scene3 = SceneImporter::loadFromFile("Assets/Street environment_V01.fbx");
-    GameObject scene3 = SceneImporter::loadFromFile("Assets/Street/street2.fbx");
+    //GameObject scene3 = SceneImporter::loadFromFile("Assets/Street/street2.fbx");
 
     secondaryCamera.AddComponent<CameraComponent>();
     SceneManager::gameObjectsOnScene.push_back(secondaryCamera);
