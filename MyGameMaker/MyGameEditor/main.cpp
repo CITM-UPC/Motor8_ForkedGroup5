@@ -518,7 +518,7 @@ int main(int argc, char* argv[]) {
     GameObject scene1 = SceneImporter::loadFromFile("Assets/BakerHouse.fbx");
     GameObject scene2 = SceneImporter::loadFromFile("Assets/strawberry.fbx");
     //GameObject scene3 = SceneImporter::loadFromFile("Assets/Street environment_V01.fbx");
-    //GameObject scene3 = SceneImporter::loadFromFile("Assets/Street/street2.fbx");
+    GameObject scene3 = SceneImporter::loadFromFile("Assets/Street/street2.fbx");
 
     secondaryCamera.AddComponent<CameraComponent>();
     SceneManager::gameObjectsOnScene.push_back(secondaryCamera);

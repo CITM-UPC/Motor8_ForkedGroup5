@@ -12,7 +12,7 @@
 
 using namespace std;
 namespace fs = std::filesystem;
-vec3 _translation = vec3(0.0f);	
+vec3 _translation = vec3(-90.0f);	
 static mat4 aiMat4ToMat4(const aiMatrix4x4& aiMat) {
 	mat4 mat;
 	for (int c = 0; c < 4; ++c) for (int r = 0; r < 4; ++r) mat[c][r] = aiMat[r][c];
@@ -52,17 +52,11 @@ GameObject graphicObjectFromNode(const aiScene& scene, const aiNode& node, const
 	}
 	else if (!containsSubstring(obj.name, "$AssimpFbx$")) {
 		obj.GetComponent<TransformComponent>()->transform().setPos(_translation);
-		obj.GetComponent<TransformComponent>()->transform().rotate(glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+		obj.GetComponent<TransformComponent>()->transform().rotate(glm::radians(-90.0f), glm::vec3(0.0f, 0.0f, 0.0f));
 		_translation = vec3(0.0f);
 	}
 
-	// Convertir la rotación de quaternion a ángulos de Euler
-	vec3 eulerRotation = glm::eulerAngles(rotation);
-
-	// Aplicar la transformación local al objeto
-	obj.GetComponent<TransformComponent>()->transform().setScale(scale);
-	obj.GetComponent<TransformComponent>()->transform().setRotation(eulerRotation);
-	obj.GetComponent<TransformComponent>()->transform().setPos(translation);
+	
 
 	for (unsigned int i = 0; i < node.mNumMeshes; ++i) {
 		const auto* fbx_mesh = scene.mMeshes[node.mMeshes[i]];
@@ -148,17 +142,5 @@ GameObject SceneImporter::loadFromFile(const std::string& path) {
 	const auto materials = createMaterialsFromFBX(*fbx_scene, fs::absolute(path).parent_path());
 	GameObject fbx_obj = graphicObjectFromNode(*fbx_scene, *fbx_scene->mRootNode, meshes, materials);
 	aiReleaseImport(fbx_scene);
-	//for (int i = 0; i < meshImporter.meshGameObjects.size(); i++)
-	//{
-	//	auto gameObject = meshImporter.meshGameObjects[i];
-	//	scene.emplaceChild(*gameObject);
-	//}
-	//std::string nameFile = getFileNameWithoutExtension(path);
-	//const std::string finalPath = "Library/Meshes/" + nameFile + ".mesh";
-	//meshImporter.SaveMeshToFile(meshImporter.meshGameObjects, finalPath.c_str());
-	//go.meshPath = path;
-	//// Set ID
-	//int newID = scene.children().back().id;
-	//go.id = newID + 1;
 	return fbx_obj;
 }
