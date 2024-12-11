@@ -2,7 +2,6 @@
 #include <assimp/Importer.hpp>
 #include <assimp/cimport.h>
 #include <assimp/scene.h>
-#include <assimp/mesh.h>
 #include <assimp/postprocess.h>
 #include <IL/il.h>
 #include <IL/ilu.h>
@@ -46,7 +45,6 @@ public:
 	void draw() const;
 
 	void LoadFile(const char* filePath);
-	void LoadFromAssimpMesh(const aiMesh* mesh);
 
 	// Load Texture
 	void drawNormals(const glm::mat4& modelMatrix);

@@ -60,12 +60,6 @@ void GameObject::setTexture(const std::string& path) {
     textura.loadFromFile(path);
 }
 
-
-
-void GameObject::addTextureImage(std::shared_ptr<Image> texture) {
-    additionalTextures.push_back(texture);
-}
-
 inline static void glVertex3(const vec3& v) { glVertex3dv(&v.x); }
 static void drawWiredQuad(const vec3& v0, const vec3& v1, const vec3& v2, const vec3& v3) {
     glBegin(GL_LINE_LOOP);

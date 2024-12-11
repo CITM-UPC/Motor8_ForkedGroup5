@@ -159,37 +159,7 @@ void Mesh::LoadFile(const char* file_path)
 	}
 }
 
-void Mesh::LoadFromAssimpMesh(const aiMesh* mesh) {
-	// Aquí cargamos los vértices, normales y coordenadas de textura desde el aiMesh
-	std::vector<float> vertices;
-	std::vector<float> normals;
-	std::vector<float> texCoords;
 
-	for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
-		// Cargar vértices
-		vertices.push_back(mesh->mVertices[i].x);
-		vertices.push_back(mesh->mVertices[i].y);
-		vertices.push_back(mesh->mVertices[i].z);
-
-		// Cargar normales
-		if (mesh->HasNormals()) {
-			normals.push_back(mesh->mNormals[i].x);
-			normals.push_back(mesh->mNormals[i].y);
-			normals.push_back(mesh->mNormals[i].z);
-		}
-
-		// Cargar coordenadas de textura
-		if (mesh->mTextureCoords[0]) {
-			texCoords.push_back(mesh->mTextureCoords[0][i].x);
-			texCoords.push_back(mesh->mTextureCoords[0][i].y);
-		}
-		else {
-			texCoords.push_back(0.0f);
-			texCoords.push_back(0.0f);
-		}
-	}
-
-}
 
 
 void Mesh::drawNormals(const glm::mat4& modelMatrix) {
