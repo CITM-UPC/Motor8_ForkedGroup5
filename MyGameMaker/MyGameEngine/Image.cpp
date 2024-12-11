@@ -42,7 +42,7 @@ static int rowAlignment(int width, int channels) {
 	return 1;
 }
 
-void Image::load(int width, int height, int channels, void* data) {
+void Image::load(int width, int height, int channels, const void* data) {
 	_width = width;
 	_height = height;
 	_channels = channels;

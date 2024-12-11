@@ -110,6 +110,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>..\</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -142,17 +143,21 @@
   <ItemGroup>
     <ClCompile Include="BasicShapesManager.cpp" />
     <ClCompile Include="Console.cpp" />
+    <ClCompile Include="ImageImporter.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MyGui.cpp" />
     <ClCompile Include="MyWindow.cpp" />
+    <ClCompile Include="SceneImporter.cpp" />
     <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="SystemInfo.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BasicShapesManager.h" />
     <ClInclude Include="Console.h" />
+    <ClInclude Include="ImageImporter.h" />
     <ClInclude Include="MyGui.h" />
     <ClInclude Include="MyWindow.h" />
+    <ClInclude Include="SceneImporter.h" />
     <ClInclude Include="SceneManager.h" />
     <ClInclude Include="SystemInfo.h" />
   </ItemGroup>

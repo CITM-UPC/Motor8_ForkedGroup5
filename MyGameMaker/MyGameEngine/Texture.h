@@ -27,5 +27,6 @@ public:
 	void setImage(const std::shared_ptr<Image>& img_ptr) { _img_ptr = img_ptr; }
 	const auto& image() const { return *_img_ptr; }
 	bool loadFromFile(const std::string& path);
+	std::shared_ptr<Image> imagePtr() const { return _img_ptr; }
 };
 

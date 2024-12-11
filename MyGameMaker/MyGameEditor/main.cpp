@@ -25,6 +25,7 @@
 #include "MyGameEngine/BoundingBox.h"
 #include "MyGameEngine/types.h"
 #include "MeshImporter.h"
+#include "SceneImporter.h"
 
 
 using namespace std;
@@ -516,6 +517,11 @@ int main(int argc, char* argv[]) {
     SceneManager::spawnBakerHouse();
     SceneManager::spawnBakerHouse();
     //SceneManager::spawnStreet();
+
+    GameObject scene1 = SceneImporter::loadFromFile("Assets/BakerHouse.fbx");
+    GameObject scene2 = SceneImporter::loadFromFile("Assets/strawberry.fbx");
+    //GameObject scene3 = SceneImporter::loadFromFile("Assets/Street environment_V01.fbx");
+    GameObject scene3 = SceneImporter::loadFromFile("Assets/street2.fbx");
 
     secondaryCamera.AddComponent<CameraComponent>();
     SceneManager::gameObjectsOnScene.push_back(secondaryCamera);

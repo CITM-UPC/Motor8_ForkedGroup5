@@ -90,6 +90,14 @@ public:
     vec3 getGlobalPos() const;
     mat4 getGlobalMatrix() const;
 
+    void SetLocalMatrix(const mat4& localMatrix) {
+        _mat = localMatrix;
+        _left = vec3(_mat[0]);
+        _up = vec3(_mat[1]);
+        _fwd = vec3(_mat[2]);
+        _pos = vec3(_mat[3]);
+    }
+
     void update();
 };
 
