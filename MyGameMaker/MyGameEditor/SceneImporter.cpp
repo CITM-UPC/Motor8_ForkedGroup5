@@ -9,6 +9,7 @@
 #include "MyGameEngine/Component.h"
 #include "MyGameEngine/Material.h"
 #include "SceneManager.h"
+
 using namespace std;
 namespace fs = std::filesystem;
 vec3 _translation = vec3(0.0f);	
@@ -36,26 +37,33 @@ static void decomposeMatrix(const mat4& matrix, vec3& scale, glm::quat& rotation
 bool containsSubstring(const std::string& str, const std::string& substr) {
 	return str.find(substr) != std::string::npos;
 }
+
 GameObject graphicObjectFromNode(const aiScene& scene, const aiNode& node, const vector<shared_ptr<Mesh>>& meshes, const vector<shared_ptr<Material>>& materials) {
-	
 	GameObject obj;
 	mat4 localMatrix = aiMat4ToMat4(node.mTransformation);
-	//obj.GetComponent<TransformComponent>()->transform().SetLocalMatrix(localMatrix);
+	obj.GetComponent<TransformComponent>()->transform().SetLocalMatrix(localMatrix);
 	vec3 scale, translation;
 	glm::quat rotation;
 	decomposeMatrix(localMatrix, scale, rotation, translation);
-	
+
 	obj.name = node.mName.C_Str();
-	if (containsSubstring(obj.name, "$AssimpFbx$_Translation"))
-	{
+	if (containsSubstring(obj.name, "$AssimpFbx$_Translation")) {
 		_translation = translation;
 	}
-	else if (!containsSubstring(obj.name, "$AssimpFbx$"))
-	{
+	else if (!containsSubstring(obj.name, "$AssimpFbx$")) {
 		obj.GetComponent<TransformComponent>()->transform().setPos(_translation);
-		obj.GetComponent<TransformComponent>()->transform().rotate(glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		obj.GetComponent<TransformComponent>()->transform().rotate(glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 0.0f));
 		_translation = vec3(0.0f);
 	}
+
+	// Convertir la rotación de quaternion a ángulos de Euler
+	vec3 eulerRotation = glm::eulerAngles(rotation);
+
+	// Aplicar la transformación local al objeto
+	obj.GetComponent<TransformComponent>()->transform().setScale(scale);
+	obj.GetComponent<TransformComponent>()->transform().setRotation(eulerRotation);
+	obj.GetComponent<TransformComponent>()->transform().setPos(translation);
+
 	for (unsigned int i = 0; i < node.mNumMeshes; ++i) {
 		const auto* fbx_mesh = scene.mMeshes[node.mMeshes[i]];
 		auto mesh = meshes[node.mMeshes[i]];
@@ -71,6 +79,8 @@ GameObject graphicObjectFromNode(const aiScene& scene, const aiNode& node, const
 	}
 	return obj;
 }
+
+
 static vector<shared_ptr<Mesh>> createMeshesFromFBX(const aiScene& scene) {
 	vector<shared_ptr<Mesh>> meshes;
 	for (unsigned int i = 0; i < scene.mNumMeshes; ++i) {
