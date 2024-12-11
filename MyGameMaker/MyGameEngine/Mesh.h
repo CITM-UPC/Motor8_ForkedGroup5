@@ -21,6 +21,7 @@ private:
 	std::vector<glm::vec2> _texCoords;      // Coordenadas de textura
 	std::vector<glm::vec3> _normals;        // Normales de la malla
 	std::vector<unsigned int> _indices;     // Índices para dibujo con elementos
+	std::vector<glm::u8vec3> _colors;
 
 	BufferObject _vertexBuffer;
 	BufferObject _indexBuffer;
@@ -29,7 +30,7 @@ private:
 	BufferObject _colorsBuffer;
 
 public:
-	Mesh() = default;  // Constructor por defecto
+	Mesh() {}  // Constructor por defecto
 
 	// Constructor que usa un MeshDTO
 	Mesh(const MeshImporter::MeshDTO& dto);

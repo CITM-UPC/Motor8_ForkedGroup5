@@ -18,6 +18,7 @@ Mesh::Mesh(const MeshImporter::MeshDTO& dto) {
 	_texCoords = dto.texCoords;
 	_normals = dto.normals;
 	_indices = dto.indices;
+	_colors = dto.colors;
 
 	// Opcional: Inicializa buffers si es necesario
 	_vertexBuffer.loadData(_vertices.data(), _vertices.size() * sizeof(glm::vec3));
