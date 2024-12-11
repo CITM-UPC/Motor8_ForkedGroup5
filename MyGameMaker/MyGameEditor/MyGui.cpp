@@ -29,6 +29,13 @@ bool show_spawn_figures_window = false;
 bool is_running = false;
 bool is_paused = false;
 
+enum class ViewMode {
+    Console,
+    AssetsFolder
+};
+
+ViewMode currentViewMode = ViewMode::Console;
+
 MyGUI::MyGUI(SDL_Window* window, void* context) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -127,7 +134,33 @@ void MyGUI::ShowMainMenuBar() {
     }
 }
 
+void MyGUI::ShowMainWindow() {
+    ImGui::SetNextWindowSize(ImVec2(180, 55), ImGuiCond_Always);
+    ImGui::SetNextWindowPos(ImVec2(300, ImGui::GetIO().DisplaySize.y - 225), ImGuiCond_Always);
+    ImGui::SetNextWindowBgAlpha(0.0f); // Establecer transparencia para la ventana principal
+    ImGui::Begin("Main Window", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBringToFrontOnFocus); // Añadir la bandera ImGuiWindowFlags_NoBringToFrontOnFocus
+
+    if (ImGui::BeginTabBar("MainTabBar")) {
+        if (ImGui::BeginTabItem("Console")) {
+            currentViewMode = ViewMode::Console;
+            ShowConsole();
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Assets Folder")) {
+            currentViewMode = ViewMode::AssetsFolder;
+            ShowAssetsFolder(nullptr);
+            ImGui::EndTabItem();
+        }
+        ImGui::EndTabBar();
+    }
+
+    ImGui::End();
+}
+
+
 void MyGUI::ShowConsole() {
+    if (currentViewMode != ViewMode::Console) return;
+
     ImGui::SetNextWindowSize(ImVec2(680, 200), ImGuiCond_Always);
     ImGui::SetNextWindowPos(ImVec2(300, ImGui::GetIO().DisplaySize.y - 200), ImGuiCond_Always);
 
@@ -150,7 +183,12 @@ void MyGUI::ShowConsole() {
 }
 
 void MyGUI::ShowAssetsFolder(bool* p_open) {
-    ImGui::SetNextWindowSize(ImVec2(800, 600), ImGuiCond_FirstUseEver); // Permite redimensionar la ventana
+    if (currentViewMode != ViewMode::AssetsFolder) return;
+
+    ImGui::SetNextWindowSize(ImVec2(680, 200), ImGuiCond_Always);
+    ImGui::SetNextWindowPos(ImVec2(300, ImGui::GetIO().DisplaySize.y - 200), ImGuiCond_Always);
+
+
     ImGui::Begin("Assets Folder", p_open);
 
     static std::vector<std::string> files;
@@ -158,14 +196,13 @@ void MyGUI::ShowAssetsFolder(bool* p_open) {
     static int selectedFileIndex = -1;
 
     if (!filesLoaded) {
-        std::string assetsPath = "Assets"; // Cambia esto a la ruta de tu carpeta de Assets
+        std::string assetsPath = "Assets";
         for (const auto& entry : std::experimental::filesystem::directory_iterator(assetsPath)) {
             files.push_back(entry.path().filename().string());
         }
         filesLoaded = true;
     }
 
-    // Botón para importar archivos
     if (ImGui::Button("Import File")) {
         const char* filterPatterns[1] = { "*" };
         const char* filePath = tinyfd_openFileDialog(
@@ -183,23 +220,20 @@ void MyGUI::ShowAssetsFolder(bool* p_open) {
         }
     }
 
-    // Mostrar archivos en la carpeta de Assets
     for (int i = 0; i < files.size(); ++i) {
         if (ImGui::Selectable(files[i].c_str(), selectedFileIndex == i)) {
             selectedFileIndex = i;
             Console::Instance().Log("Selected file: " + files[i]);
         }
 
-        // Comenzar el "drag" si se selecciona este archivo
         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
             const char* filePath = files[i].c_str();
-            ImGui::SetDragDropPayload("ASSET_FILE", filePath, strlen(filePath) + 1); // El payload debe contener la ruta del archivo
+            ImGui::SetDragDropPayload("ASSET_FILE", filePath, strlen(filePath) + 1);
             ImGui::Text("Dragging %s", files[i].c_str());
             ImGui::EndDragDropSource();
         }
     }
 
-    // Botón para eliminar archivos
     if (selectedFileIndex != -1 && ImGui::Button("Delete File")) {
         std::string filePath = "Assets/" + files[selectedFileIndex];
         if (std::experimental::filesystem::remove(filePath)) {
@@ -484,24 +518,7 @@ void MyGUI::render() {
     ShowMainMenuBar();
     ShowHierarchy();
     renderInspector();
-    ShowConsole();
-
-    static bool showAssetsFolder = true;
-    ShowAssetsFolder(&showAssetsFolder);
-
-    // Manejar el "drop" de archivos en la pantalla
-    if (ImGui::Begin("Main Viewport")) {
-        if (ImGui::BeginDragDropTarget()) {
-            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_FILE")) {
-                const char* filePath = (const char*)payload->Data;
-                Console::Instance().Log("Dropped file: " + std::string(filePath));
-                // Aquí puedes agregar la lógica para manejar el archivo arrastrado y soltado
-                SceneManager::LoadGameObject(filePath);
-            }
-            ImGui::EndDragDropTarget();
-        }
-        ImGui::End();
-    }
+    ShowMainWindow();
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

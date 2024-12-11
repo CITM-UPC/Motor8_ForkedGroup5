@@ -21,6 +21,7 @@ public:
 	void ShowRenderSystemInfo(bool* p_open);
 	void ShowLibraryVerions(bool* p_open);
 	void ShowAssetsFolder(bool* p_open);
+	void ShowMainWindow();
 
 	void ShowHierarchy();
 	void ShowInspector(bool* p_open); // Declaración de la nueva función
