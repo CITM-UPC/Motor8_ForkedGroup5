@@ -165,10 +165,28 @@ void MyGUI::ShowAssetsFolder(bool* p_open) {
         filesLoaded = true;
     }
 
+    // Botón para importar archivos
+    if (ImGui::Button("Import File")) {
+        const char* filterPatterns[1] = { "*" };
+        const char* filePath = tinyfd_openFileDialog(
+            "Select a file to import",
+            "",
+            1,
+            filterPatterns,
+            NULL,
+            0
+        );
+        if (filePath) {
+            std::experimental::filesystem::copy(filePath, "Assets/");
+            files.push_back(std::experimental::filesystem::path(filePath).filename().string());
+            Console::Instance().Log("Imported file: " + std::string(filePath));
+        }
+    }
+
+    // Mostrar archivos en la carpeta de Assets
     for (int i = 0; i < files.size(); ++i) {
         if (ImGui::Selectable(files[i].c_str(), selectedFileIndex == i)) {
             selectedFileIndex = i;
-            // Aquí puedes agregar la lógica para manejar la selección del archivo
             Console::Instance().Log("Selected file: " + files[i]);
         }
 
@@ -181,8 +199,22 @@ void MyGUI::ShowAssetsFolder(bool* p_open) {
         }
     }
 
+    // Botón para eliminar archivos
+    if (selectedFileIndex != -1 && ImGui::Button("Delete File")) {
+        std::string filePath = "Assets/" + files[selectedFileIndex];
+        if (std::experimental::filesystem::remove(filePath)) {
+            Console::Instance().Log("Deleted file: " + files[selectedFileIndex]);
+            files.erase(files.begin() + selectedFileIndex);
+            selectedFileIndex = -1;
+        }
+        else {
+            Console::Instance().Log("Failed to delete file: " + files[selectedFileIndex]);
+        }
+    }
+
     ImGui::End();
 }
+
 
 
 
