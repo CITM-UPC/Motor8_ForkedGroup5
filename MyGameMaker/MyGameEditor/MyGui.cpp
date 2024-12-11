@@ -319,12 +319,7 @@ void MyGUI::ShowHierarchy() {
                 }
                 ImGui::Unindent();
             }
-            if (ImGui::TreeNode(go.getName().c_str())) {
-                for (auto& child : go.getChildren()) {
-                    ImGui::BulletText("%s", child->getName().c_str());
-                }
-                ImGui::TreePop();
-            }
+           
         }
 
         ImGui::End();
