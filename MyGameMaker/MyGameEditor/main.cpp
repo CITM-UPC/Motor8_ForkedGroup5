@@ -512,9 +512,10 @@ int main(int argc, char* argv[]) {
     SceneManager::gameObjectsOnScene.push_back(mainCamera);
     mainCamera.GetComponent<CameraComponent>()->camera().transform().pos() = vec3(0, 1, 4);
     mainCamera.GetComponent<CameraComponent>()->camera().transform().rotate(glm::radians(180.0), vec3(0, 1, 0));
-    SceneManager::spawnBakerHouse();
-    SceneManager::spawnBakerHouse();
+    //SceneManager::spawnBakerHouse();
+    //SceneManager::spawnBakerHouse();
     //SceneManager::spawnStreet();
+	SceneManager::spawnStreetEnviroment();
 
     secondaryCamera.AddComponent<CameraComponent>();
     SceneManager::gameObjectsOnScene.push_back(secondaryCamera);

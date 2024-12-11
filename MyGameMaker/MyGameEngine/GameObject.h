@@ -22,6 +22,7 @@ private:
     glm::u8vec3 _color = glm::u8vec3(255, 255, 255); // Color del objeto
     Texture _texture;                           // Textura del objeto
     std::shared_ptr<Mesh> _mesh_ptr;           // Puntero a la malla
+    std::vector<std::shared_ptr<Image>> additionalTextures; // Agregado aquí
     //std::vector<std::shared_ptr<Component>> _components; // Lista de componentes
     bool _active = true;                        // Estado de activación
 	mutable bool hasCreatedCheckerTexture = false;		// Indica si la textura de cuadros ha sido creada
@@ -50,6 +51,8 @@ public:
     void RemoveComponent();
     template <typename T>
     bool HasComponent() const;
+
+    
 
     // Métodos para acceder y modificar propiedades
     const auto& transform() const { return _transform; }
@@ -84,6 +87,7 @@ public:
     void setTextureImage(const std::shared_ptr<Image>& img_ptr) { _texture.setImage(img_ptr); }
     void setMesh(const std::shared_ptr<Mesh>& mesh_ptr) { _mesh_ptr = mesh_ptr; }
     void setTexture(const std::string& path);
+    void addTextureImage(std::shared_ptr<Image> texture);
 
     // Comprobaciones de existencia de textura y malla
     bool hasTexture() const { return _texture.id(); }
