@@ -30,7 +30,7 @@ private:
 	BufferObject _colorsBuffer;
 
 public:
-	Mesh() {}  // Constructor por defecto
+	Mesh(){}  // Constructor por defecto
 
 	// Constructor que usa un MeshDTO
 	Mesh(const MeshImporter::MeshDTO& dto);

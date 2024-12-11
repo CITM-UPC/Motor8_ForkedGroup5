@@ -8,6 +8,7 @@
 class MeshImporter
 {
 public:
+   
     struct MeshDTO
     {
         std::vector<glm::vec3> vertices;
@@ -23,6 +24,7 @@ public:
     MeshDTO LoadMeshFromBinaryFile(const std::string& filePath);
 
 };
+
 
 std::ostream& operator<<(std::ostream& os, const MeshImporter::MeshDTO& mesh)
 {
@@ -102,5 +104,3 @@ std::istream& operator>>(std::istream& is, MeshImporter::MeshDTO& mesh)
 
     return is;
 }
-
-
