@@ -323,11 +323,11 @@ void display_func() {
 
     for (auto& go : SceneManager::gameObjectsOnScene) {
         if (isBoundingBoxInsideFrustum(go.boundingBox(), frustumPlanes)) {
-            glColor3f(0.0f, 1.0f, 0.0f); // Green for visible objects
-            go.draw();
+            glColor3f(1.0f, 0.0f, 0.0f); // Red for culled objects
         }
         else {
-            glColor3f(1.0f, 0.0f, 0.0f); // Red for culled objects
+            glColor3f(0.0f, 1.0f, 0.0f); // Green for visible objects
+            go.draw();
         }
         drawBoundingBox(go.boundingBox());
     }
