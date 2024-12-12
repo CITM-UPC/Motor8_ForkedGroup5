@@ -24,9 +24,11 @@ Right click + Q - Down the camera
 Right click + Shift + AWSD - fast fps camera movement
 Right click + Alt - Orbit selected object
 F - Focus on the selected object
+C - Change camera
 1 - Spawn Triangle to mouse position
 2 - Spawn Square to mouse position
 3 - Spawn Cube to mouse position
+
 
 Additional feature
 
