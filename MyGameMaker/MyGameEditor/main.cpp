@@ -288,8 +288,6 @@ void drawFrustum(const std::array<glm::vec3, 8>& corners) {
 
 void configureCamera() {
     glm::dmat4 projectionMatrix = glm::perspective(glm::radians(45.0), static_cast<double>(WINDOW_SIZE.x) / WINDOW_SIZE.y, 0.1, 100.0);
-    //glm::dmat4 viewMatrix = camera.view();
-   /* glm::dmat4 viewMatrix = mainCamera.GetComponent<CameraComponent>()->camera().view();*/
     glm::dmat4 viewMatrix = activeCamera->view();
 
     glMatrixMode(GL_PROJECTION);
@@ -364,17 +362,17 @@ void orbitCamera(const vec3& target, int deltaX, int deltaY) {
 
     yaw += deltaX * sensitivity;
     pitch -= deltaY * sensitivity;
-    float distance = glm::length(mainCamera.transform().pos() - target);
+    float distance = glm::length(activeCamera->transform().pos() - target);
 
     vec3 newPosition;
     newPosition.x = target.x + distance * cos(glm::radians(yaw)) * cos(glm::radians(pitch));
     newPosition.y = target.y + distance * sin(glm::radians(pitch));
     newPosition.z = target.z + distance * sin(glm::radians(yaw)) * cos(glm::radians(pitch));
 
-   
-    mainCamera.GetComponent<CameraComponent>()->camera().transform().pos() = newPosition;
-    mainCamera.GetComponent<CameraComponent>()->camera().transform().lookAt(target);
+    activeCamera->transform().pos() = newPosition;
+    activeCamera->transform().lookAt(target);
 }
+
 void mouseMotion_func(int x, int y) {
     if (rightMouseButtonDown && altKeyDown == false) {
         int deltaX = x - lastMouseX;
