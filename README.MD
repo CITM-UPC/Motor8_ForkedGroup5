@@ -36,3 +36,6 @@ Left Click - Select object on the scene
 
 NOTES
 The baker house is not in the resource folder in order to initialize correctly.
+We had problems with the rotation transform, so we tried hard but didn't be able to achieve it.
+Scene saving and loading has been tried and tried multiple times, we also tried to copy it from partners so we weren't able to achieve it by our own but external errors appeared and we decided to delete those features.
+For not loading the whole city you can comment line 519 from main.cpp so you can test better the other features.
